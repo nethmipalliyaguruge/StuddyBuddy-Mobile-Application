@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:studybuddy/screens/ExplorePage.dart';
+import 'package:studybuddy/screens/NotesPage.dart';
 import 'package:studybuddy/screens/detail_page.dart';
 
 const kBrandGreen = Color(0xFF006644);
@@ -74,12 +75,7 @@ class HomePage extends StatelessWidget {
   );
 }
 
-class NotesPage extends StatelessWidget {
-  const NotesPage({super.key});
-  @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: Text('Notes')));
-}
+
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
