@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+const kBrandGreen = Color(0xFF006644);
 class NotesPage extends StatelessWidget {
   const NotesPage({super.key});
 
@@ -27,7 +28,7 @@ class NotesPage extends StatelessWidget {
             floatingActionButton: FloatingActionButton(
         onPressed: () {
         },
-        backgroundColor: const Color(0xFF006644),
+        backgroundColor: kBrandGreen,
         foregroundColor: Colors.white,
         child: const Icon(Icons.add),
       ),
@@ -41,7 +42,7 @@ class NotesPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            const Icon(Icons.note, size: 32, color: Color(0xFF006644)),
+            const Icon(Icons.note, size: 32, color: kBrandGreen),
             const SizedBox(width: 16),
 
             Expanded(
@@ -60,7 +61,7 @@ class NotesPage extends StatelessWidget {
                     price,
                     style: const TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF006644),
+                      color: kBrandGreen,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
