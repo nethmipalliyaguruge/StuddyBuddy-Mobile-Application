@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:studybuddy/screens/AddNotePage.dart';
 
 const kBrandGreen = Color(0xFF006644);
 class NotesPage extends StatelessWidget {
@@ -27,6 +28,11 @@ class NotesPage extends StatelessWidget {
       ),
             floatingActionButton: FloatingActionButton(
         onPressed: () {
+          Navigator.of(context).push(
+                   MaterialPageRoute<void>(
+                      builder: (context) => AddNotePage(),
+                    ),
+                  );
         },
         backgroundColor: kBrandGreen,
         foregroundColor: Colors.white,
@@ -68,7 +74,6 @@ class NotesPage extends StatelessWidget {
                 ],
               ),
             ),
-            // Edit icon
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: onEdit,

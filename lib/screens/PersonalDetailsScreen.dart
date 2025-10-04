@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const kBrandGreen = Color(0xFF006644);
+
 class PersonalDetailsScreen extends StatefulWidget {
   const PersonalDetailsScreen({super.key});
 
@@ -37,26 +39,26 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLabel('Name'),
-                  _buildTextField(
+                  buildLabel('Name'),
+                  buildTextField(
                     labelText: 'Full Name',
                     prefixIcon: Icons.person,
                   ),
                   const SizedBox(height: 18),
-                  _buildLabel('Email'),
-                  _buildTextField(labelText: 'Email', prefixIcon: Icons.email),
+                  buildLabel('Email'),
+                  buildTextField(labelText: 'Email', prefixIcon: Icons.email),
                   const SizedBox(height: 18),
-                  _buildLabel('Phone Number'),
-                  _buildTextField(
+                  buildLabel('Phone Number'),
+                  buildTextField(
                     labelText: 'Phone Number',
                     prefixIcon: Icons.phone,
                   ),
                   const SizedBox(height: 18),
-                  _buildLabel('Date of Birth'),
+                  buildLabel('Date of Birth'),
                   Row(
                     children: [
                       Expanded(
-                        child: _buildTextField(
+                        child: buildTextField(
                           labelText: 'Date of Birth',
                           prefixIcon: Icons.cake,
                           controller: _dobController,
@@ -65,7 +67,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.calendar_today),
+                        icon: const Icon(Icons.calendar_month_outlined),
                         onPressed: () async {
                           DateTime? pickedDate = await showDatePicker(
                             context: context,
@@ -90,6 +92,8 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                       icon: const Icon(Icons.save),
                       label: const Text('Save'),
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: kBrandGreen,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -110,7 +114,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
   }
 }
 
-  Widget _buildLabel(String text) {
+  Widget buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6.0),
       child: Text(
@@ -120,7 +124,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
     );
   }
 
-  Widget _buildTextField({
+  Widget buildTextField({
     required String labelText,
     required IconData prefixIcon,
     TextEditingController? controller,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:studybuddy/screens/MyOrdersPage.dart';
 import 'package:studybuddy/screens/PersonalDetailsScreen.dart';
 
 const kBrandGreen = Color(0xFF006644);
@@ -51,7 +52,13 @@ class ProfilePage extends StatelessWidget {
               ProfileOption(
                 icon: Icons.shopping_bag,
                 label: "My Orders",
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).push(
+                   MaterialPageRoute<void>(
+                      builder: (context) => MyOrdersPage(),
+                    ),
+                  );
+                },
               ),
               ProfileOption(
                 icon: Icons.settings,
