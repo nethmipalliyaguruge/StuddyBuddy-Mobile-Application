@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:studybuddy/screens/PersonalDetailsScreen.dart';
 
 const kBrandGreen = Color(0xFF006644);
 
@@ -34,7 +35,13 @@ class ProfilePage extends StatelessWidget {
               ProfileOption(
                 icon: Icons.person,
                 label: "Personal Details",
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).push(
+                   MaterialPageRoute<void>(
+                      builder: (context) => PersonalDetailsScreen(),
+                    ),
+                  );
+                },
               ),
               ProfileOption(
                 icon: Icons.credit_card,
