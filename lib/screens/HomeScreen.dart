@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:studybuddy/screens/CartPage.dart';
 import 'package:studybuddy/screens/ExplorePage.dart';
 import 'package:studybuddy/screens/NotesPage.dart';
 import 'package:studybuddy/screens/ProfilePage.dart';
@@ -22,14 +23,29 @@ class _HomescreenState extends State<Homescreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('StudyBuddy', style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-          color: Colors.white,
-        )),
-        backgroundColor: kBrandGreen,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('StudyBuddy', style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              color: Colors.white,
+            )),
+            SizedBox(width: 16),
+            ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CartPage()),
+              );
+            },
+            child: Icon(Icons.shopping_cart, color:kBrandGreen),
+          ),
+        ],
       ),
-      body: _pages[_index],
+      backgroundColor: kBrandGreen,
+    ),
+    body: _pages[_index],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (int newIndex) {
