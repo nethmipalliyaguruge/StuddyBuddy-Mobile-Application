@@ -14,7 +14,6 @@ class ExplorePage extends StatefulWidget {
 class _ExplorePageState extends State<ExplorePage> {
   String selectedCategory = 'Computing';
 
-
   final Map<String, List<Map<String, dynamic>>> categoryProducts = {
     'Computing': [
       {
@@ -188,10 +187,10 @@ class _ExplorePageState extends State<ExplorePage> {
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? kBrandGreen : Colors.white,
+          color: isSelected ? kBrandGreen : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: isSelected ? kBrandGreen : Colors.grey.shade300,
+            color: isSelected ? kBrandGreen : Theme.of(context).dividerColor,
           ),
           boxShadow: isSelected
               ? [
@@ -211,7 +210,9 @@ class _ExplorePageState extends State<ExplorePage> {
             Text(
               category,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).textTheme.bodyLarge?.color,
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),
@@ -246,11 +247,11 @@ class _ExplorePageState extends State<ExplorePage> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Theme.of(context).shadowColor.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -283,16 +284,18 @@ class _ExplorePageState extends State<ExplorePage> {
                   children: [
                     Text(
                       product['title'],
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       product['description'],
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -308,11 +311,11 @@ class _ExplorePageState extends State<ExplorePage> {
                           ),
                           child: Text(
                             product['level'],
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.blue.shade700,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Colors.blue.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -320,7 +323,7 @@ class _ExplorePageState extends State<ExplorePage> {
                         const SizedBox(width: 2),
                         Text(
                           product['rating'].toString(),
-                          style: const TextStyle(fontSize: 12),
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
                     ),

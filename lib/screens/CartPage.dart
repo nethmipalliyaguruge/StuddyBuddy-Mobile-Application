@@ -158,16 +158,21 @@ class _CartPageState extends State<CartPage> {
           const SizedBox(height: 16),
           Text(
             'Your cart is empty',
-            style: TextStyle(
-              fontSize: 20,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
+              color: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withOpacity(0.6),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Add some notes to get started!',
-            style: TextStyle(fontSize: 16, color: Colors.grey[500]),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.color?.withOpacity(0.5),
+            ),
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(
@@ -210,11 +215,11 @@ class _CartPageState extends State<CartPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -247,16 +252,18 @@ class _CartPageState extends State<CartPage> {
                 children: [
                   Text(
                     item.title,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     item.description,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -274,11 +281,11 @@ class _CartPageState extends State<CartPage> {
                         ),
                         child: Text(
                           item.level,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.blue.shade700,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Colors.blue.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -293,11 +300,11 @@ class _CartPageState extends State<CartPage> {
                         ),
                         child: Text(
                           item.category,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.orange.shade700,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Colors.orange.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
                         ),
                       ),
                     ],
@@ -337,8 +344,7 @@ class _CartPageState extends State<CartPage> {
                       margin: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         item.quantity.toString(),
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -409,11 +415,11 @@ class _CartPageState extends State<CartPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Theme.of(context).shadowColor.withOpacity(0.2),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -428,7 +434,7 @@ class _CartPageState extends State<CartPage> {
               children: [
                 Text(
                   'Total (${cartManager.itemCount} items)',
-                  style: const TextStyle(fontSize: 16, color: Colors.black87),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
                   'LKR ${cartManager.totalAmount.toStringAsFixed(2)}',

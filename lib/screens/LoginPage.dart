@@ -7,7 +7,7 @@ const kBrandGreen = Color(0xFF006644);
 // Simple user storage class
 class UserStorage {
   static final Map<String, String> _users = {
-    'John@gmail.com': 'bbb12345',
+    'john@gmail.com': 'bbb12345',
     'student@studybuddy.com': 'password123',
     'admin@studybuddy.com': 'admin123',
     'demo@example.com': '123456',
