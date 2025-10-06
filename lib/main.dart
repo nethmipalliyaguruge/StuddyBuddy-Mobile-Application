@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:studybuddy/screens/HomeScreen.dart';
+import 'package:studybuddy/screens/LoginPage.dart';
 
 void main() {
   runApp(const StudyBuddyApp());
 }
-
+const kBrandGreen = Color(0xFF006644);
 class StudyBuddyApp extends StatelessWidget {
   const StudyBuddyApp({super.key});
 
@@ -39,7 +39,7 @@ class StudyBuddyApp extends StatelessWidget {
           surfaceTintColor: Colors.transparent,
         ),
       ),
-      home: const Homescreen(),
+      home: const Loginpage(),
     );
   }
 }

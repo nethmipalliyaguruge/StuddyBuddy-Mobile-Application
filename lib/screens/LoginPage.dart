@@ -1,10 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:studybuddy/screens/HomeScreen.dart';
+import 'package:studybuddy/screens/SignUpPage.dart';
 
 const kBrandGreen = Color(0xFF006644);
 
+// Simple user storage class
+class UserStorage {
+  static final Map<String, String> _users = {
+    'John@gmail.com': 'bbb12345',
+    'student@studybuddy.com': 'password123',
+    'admin@studybuddy.com': 'admin123',
+    'demo@example.com': '123456',
+  };
+
+  static void addUser(String email, String password) {
+    _users[email] = password;
+  }
+
+  static Map<String, String> get users => _users;
+}
+
 class Loginpage extends StatefulWidget {
-  const Loginpage({super.key});
+  final String? prefilledEmail;
+  final String? prefilledPassword;
+
+  const Loginpage({super.key, this.prefilledEmail, this.prefilledPassword});
 
   @override
   State<Loginpage> createState() => _LoginpageState();
@@ -16,15 +36,20 @@ class _LoginpageState extends State<Loginpage> {
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
- bool validateLogin(String email, String password) {
-    const validCredentials = {
-      'John@gmail.com': 'bbb123',
-      'student@studybuddy.com': 'password123',
-      'admin@studybuddy.com': 'admin123',
-      'demo@example.com': '123456',
-    };
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill fields if credentials are provided from sign up
+    if (widget.prefilledEmail != null) {
+      emailController.text = widget.prefilledEmail!;
+    }
+    if (widget.prefilledPassword != null) {
+      passwordController.text = widget.prefilledPassword!;
+    }
+  }
 
-    return validCredentials[email] == password;
+  bool validateLogin(String email, String password) {
+    return UserStorage.users[email] == password;
   }
 
   @override
@@ -221,10 +246,31 @@ class _LoginpageState extends State<Loginpage> {
           style: TextStyle(color: Colors.grey),
         ),
         TextButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Sign up feature coming soon!')),
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SignUpPage()),
             );
+
+            // If user successfully registered, prefill the login form
+            if (result != null && result is Map<String, dynamic>) {
+              if (result['registered'] == true) {
+                setState(() {
+                  emailController.text = result['email'] ?? '';
+                  passwordController.text = result['password'] ?? '';
+                });
+
+                // Show a welcome message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Registration successful! You can now log in.',
+                    ),
+                    backgroundColor: kBrandGreen,
+                  ),
+                );
+              }
+            }
           },
           child: const Text(
             'Sign Up',
