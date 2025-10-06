@@ -9,10 +9,6 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('My Profile'),
-          centerTitle: true,
-        ),
         body: SingleChildScrollView(
           child: Column(
             children: [

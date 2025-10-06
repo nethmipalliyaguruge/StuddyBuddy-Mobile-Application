@@ -9,7 +9,22 @@ class NotesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Notes'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'My Notes',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: kBrandGreen,
+        elevation: 0,
+        centerTitle: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),

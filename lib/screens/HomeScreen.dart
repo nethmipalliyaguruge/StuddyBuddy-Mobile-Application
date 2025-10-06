@@ -23,32 +23,6 @@ class _HomescreenState extends State<Homescreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'StudyBuddy',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(width: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CartPage()),
-                );
-              },
-              child: Icon(Icons.shopping_cart, color: kBrandGreen),
-            ),
-          ],
-        ),
-        backgroundColor: kBrandGreen,
-      ),
       body: _pages[_index],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
@@ -78,6 +52,36 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'StudyBuddy',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(width: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CartPage()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(60, 40),
+                padding: const EdgeInsets.all(8),
+              ),
+              child: Icon(Icons.shopping_cart, color: kBrandGreen),
+            ),
+          ],
+        ),
+        backgroundColor: kBrandGreen,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
