@@ -28,10 +28,7 @@ class _AddNotePageState extends State<AddNotePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            buildTextField(
-              label: 'Note Title',
-              hint: 'Enter note title',
-            ),
+            buildTextField(label: 'Note Title', hint: 'Enter note title'),
             const SizedBox(height: 16),
             buildTextField(
               label: 'Price (LKR)',
@@ -47,7 +44,7 @@ class _AddNotePageState extends State<AddNotePage> {
             const SizedBox(height: 20),
             Text(
               'Category Selection',
-              style: TextStyle(
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: kBrandGreen,
@@ -102,11 +99,9 @@ class _AddNotePageState extends State<AddNotePage> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         TextField(
@@ -143,11 +138,9 @@ class _AddNotePageState extends State<AddNotePage> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
@@ -202,7 +195,11 @@ class _AddNotePageState extends State<AddNotePage> {
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('File upload feature coming soon!'),
+                  content: Text(
+                    'File upload feature coming soon!',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: kBrandGreen,
                 ),
               );
             },
@@ -271,7 +268,10 @@ class _AddNotePageState extends State<AddNotePage> {
     // Validate fields
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Note saved successfully!'),
+        content: Text(
+          'Note saved successfully!',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: kBrandGreen,
       ),
     );

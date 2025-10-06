@@ -370,7 +370,10 @@ class _CartPageState extends State<CartPage> {
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${item.title} removed from cart'),
+                        content: Text(
+                          '${item.title} removed from cart',
+                          style: const TextStyle(color: Colors.white),
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -494,7 +497,10 @@ class _CartPageState extends State<CartPage> {
                 Navigator.of(context).pop();
                 _processCheckout();
               },
-              style: ElevatedButton.styleFrom(backgroundColor: kBrandGreen),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kBrandGreen,
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Confirm Purchase'),
             ),
           ],
@@ -506,7 +512,10 @@ class _CartPageState extends State<CartPage> {
   void _processCheckout() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Purchase successful! Thank you for your order.'),
+        content: Text(
+          'Purchase successful! Thank you for your order.',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: kBrandGreen,
       ),
     );

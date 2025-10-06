@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:studybuddy/screens/CartPage.dart';
 
 class NoteDetailPage extends StatefulWidget {
   const NoteDetailPage({super.key});
@@ -21,17 +22,14 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Note Details'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Note Details'), centerTitle: true),
       bottomNavigationBar: !isLandscape ? buildBottomBar(total) : null,
       body: isLandscape
           ? Row(
               children: [
                 // LEFT SIDE
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: ListView(
                     padding: const EdgeInsets.all(12),
                     children: [
@@ -44,7 +42,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
                 // RIGHT SIDE
                 Expanded(
-                  flex: 1,
+                  flex: 2,
                   child: ListView(
                     padding: const EdgeInsets.all(12),
                     children: [
@@ -77,6 +75,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
   Widget buildTitleAndPrice() {
     return Card(
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 2,
       child: Padding(
@@ -84,11 +83,10 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
                 'Database & Data Structures – Normalization',
-                style: TextStyle(
-                  fontSize: 18,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -101,10 +99,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
               ),
               child: Text(
                 'LKR 850.00',
-                style: TextStyle(
-                  color: primary,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: primary, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -115,14 +110,19 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
   Widget buildPreviewCard() {
     return Card(
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Preview',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'Preview',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
@@ -132,15 +132,30 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                   'assets/images/note_preview.png',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
-                    color: Colors.grey[200],
-                    child: const Center(
+                    color: Theme.of(context).cardColor,
+                    child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.image_not_supported, size: 40, color: Colors.black45),
-                          SizedBox(height: 8),
-                          Text("Preview not available",
-                              style: TextStyle(color: Colors.black45)),
+                          Icon(
+                            Icons.image_not_supported,
+                            size: 40,
+                            color: Theme.of(
+                              context,
+                            ).iconTheme.color?.withOpacity(0.5),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Preview not available",
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.color
+                                      ?.withOpacity(0.5),
+                                ),
+                          ),
                         ],
                       ),
                     ),
@@ -156,14 +171,19 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
   Widget buildDescriptionCard() {
     return Card(
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Description',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'Description',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             AnimatedCrossFade(
               duration: const Duration(milliseconds: 200),
@@ -195,26 +215,45 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
   Widget buildModuleCard() {
     return Card(
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(
-        children: const [
+        children: [
           ListTile(
-            leading: Icon(Icons.menu_book_rounded),
-            title: Text('Module'),
-            trailing: Text('Database & Data Structures',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            leading: Icon(Icons.menu_book_rounded, color: primary),
+            title: Text(
+              'Module',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            trailing: Text(
+              'Database & Data Structures',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
           ),
           ListTile(
-            leading: Icon(Icons.school_rounded),
-            title: Text('Level'),
-            trailing:
-                Text('Level 5', style: TextStyle(fontWeight: FontWeight.bold)),
+            leading: Icon(Icons.school_rounded, color: primary),
+            title: Text('Level', style: Theme.of(context).textTheme.bodyMedium),
+            trailing: Text(
+              'Level 5',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
           ),
           ListTile(
-            leading: Icon(Icons.apartment_rounded),
-            title: Text('School'),
-            trailing: Text('School of Computing',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            leading: Icon(Icons.apartment_rounded, color: primary),
+            title: Text(
+              'School',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            trailing: Text(
+              'School of Computing',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -223,33 +262,63 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
   Widget buildSellerCard() {
     return Card(
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: const CircleAvatar(
+        leading: CircleAvatar(
           radius: 24,
-          child: Icon(Icons.person),
+          backgroundColor: primary.withOpacity(0.1),
+          child: Icon(Icons.person, color: primary),
         ),
-        title: const Text('John Doe',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: const Text('Verified • Member since 2025'),
+        title: Text(
+          'John Doe',
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          'Verified • Member since 2025',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       ),
     );
   }
 
   Widget buildPurchaseCard(double total, double fee) {
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     return Card(
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const Text('Purchase Details',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'Purchase Details',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
-            _priceRow('Material Price', price),
-            _priceRow('Platform Fee (5%)', fee),
-            const Divider(),
-            _priceRow('Total', total, bold: true),
+            isLandscape
+                ? Column(
+                    children: [
+                      _priceRow('Material Price', price),
+                      _priceRow('Platform Fee (5%)', fee),
+                      const Divider(),
+                      _priceRow('Total', total, bold: true),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      _priceRow('Material Price', price),
+                      _priceRow('Platform Fee (5%)', fee),
+                      const Divider(),
+                      _priceRow('Total', total, bold: true),
+                    ],
+                  ),
           ],
         ),
       ),
@@ -260,25 +329,49 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.all(12),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Colors.black12)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          border: Border(
+            top: BorderSide(color: Theme.of(context).dividerColor),
+          ),
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 'LKR ${total.toStringAsFixed(2)}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             FilledButton(
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      'Purchase feature coming soon!',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: primary,
+                  ),
+                );
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: primary,
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Purchase Now'),
             ),
             const SizedBox(width: 8),
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                _addToCart();
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: primary,
+                side: BorderSide(color: primary),
+              ),
               icon: const Icon(Icons.add_shopping_cart),
               label: const Text('Cart'),
             ),
@@ -293,14 +386,53 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Expanded(child: Text(label)),
+          Expanded(
+            child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
+          ),
           Text(
             'LKR ${value.toStringAsFixed(2)}',
-            style: TextStyle(
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontWeight: bold ? FontWeight.bold : FontWeight.w500,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _addToCart() {
+    // Create a product map similar to ExplorePage
+    final product = {
+      'title': 'Database & Data Structures – Normalization',
+      'description':
+          'Comprehensive study material with clear examples and step-by-step transformations',
+      'price': 'LKR ${price.toStringAsFixed(2)}',
+      'rating': 4.8,
+      'level': 'Level 5',
+    };
+
+    // Add to cart using CartManager
+    CartManager().addItem(product, 'Computing');
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Added to cart successfully!',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: primary,
+        duration: const Duration(seconds: 2),
+        action: SnackBarAction(
+          label: 'View Cart',
+          textColor: Colors.white,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CartPage()),
+            );
+          },
+        ),
       ),
     );
   }

@@ -352,7 +352,10 @@ class _ExplorePageState extends State<ExplorePage> {
                       // Show confirmation message
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('${product['title']} added to cart!'),
+                          content: Text(
+                            '${product['title']} added to cart!',
+                            style: const TextStyle(color: Colors.white),
+                          ),
                           backgroundColor: kBrandGreen,
                           duration: const Duration(seconds: 1),
                         ),
