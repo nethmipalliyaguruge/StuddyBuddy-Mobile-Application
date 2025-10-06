@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:studybuddy/screens/HomeScreen.dart';
 import 'package:studybuddy/screens/LoginPage.dart';
 
 void main() {
@@ -39,7 +40,7 @@ class StudyBuddyApp extends StatelessWidget {
           surfaceTintColor: Colors.transparent,
         ),
       ),
-      home: const Loginpage(),
+      home: const Homescreen(),
     );
   }
 }
