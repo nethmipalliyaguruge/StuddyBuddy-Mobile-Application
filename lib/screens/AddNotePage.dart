@@ -31,20 +31,17 @@ class _AddNotePageState extends State<AddNotePage> {
             buildTextField(
               label: 'Note Title',
               hint: 'Enter note title',
-              icon: Icons.title,
             ),
             const SizedBox(height: 16),
             buildTextField(
               label: 'Price (LKR)',
               hint: 'Enter price in LKR',
-              icon: Icons.attach_money,
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 20),
             buildTextField(
               label: 'Note Description',
               hint: 'Enter a brief description',
-              icon: Icons.description,
               maxLines: 8,
             ),
             const SizedBox(height: 20),
@@ -97,7 +94,6 @@ class _AddNotePageState extends State<AddNotePage> {
   Widget buildTextField({
     required String label,
     required String hint,
-    required IconData icon,
     int maxLines = 1,
     TextInputType? keyboardType,
   }) {
@@ -118,7 +114,6 @@ class _AddNotePageState extends State<AddNotePage> {
           keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: Icon(icon, color: kBrandGreen),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Colors.grey.shade300),
