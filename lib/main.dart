@@ -19,18 +19,18 @@ class StudyBuddyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: kBrandGreen),
         navigationBarTheme: NavigationBarThemeData(
           indicatorColor: kBrandGreen.withOpacity(0.12),
-          labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>(
+          labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
             (states) => TextStyle(
               fontWeight: FontWeight.w700,
-              color: states.contains(MaterialState.selected)
+              color: states.contains(WidgetState.selected)
                   ? kBrandGreen
                   : kBrandGreen.withOpacity(0.65),
             ),
           ),
-          iconTheme: MaterialStateProperty.resolveWith<IconThemeData>(
+          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>(
             (states) => IconThemeData(
               size: 24,
-              color: states.contains(MaterialState.selected)
+              color: states.contains(WidgetState.selected)
                   ? kBrandGreen
                   : kBrandGreen.withOpacity(0.65),
             ),
