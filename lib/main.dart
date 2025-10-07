@@ -7,7 +7,7 @@ void main() {
 
 const kBrandGreen = Color(0xFF006644);
 
-// Theme Manager for Dark/Light mode
+/// Theme Manager for Dark/Light mode toggle
 class ThemeManager extends ChangeNotifier {
   static final ThemeManager instance = ThemeManager.internal();
   factory ThemeManager() => instance;
@@ -25,6 +25,130 @@ class ThemeManager extends ChangeNotifier {
     _isDarkMode = isDark;
     notifyListeners();
   }
+}
+
+/// Build a Material 3 Theme with Roboto + accessible colors
+ThemeData buildTheme(Brightness brightness) {
+  final isDark = brightness == Brightness.dark;
+
+  // Use Material 3 color system from a seed
+  final scheme = ColorScheme.fromSeed(
+    seedColor: kBrandGreen,
+    brightness: brightness,
+  );
+
+  // Material 3 typography + Roboto (make sure you added fonts in pubspec.yaml)
+  final baseText = isDark
+      ? Typography.material2021().white
+      : Typography.material2021().black;
+
+  final textTheme = baseText.apply(fontFamily: 'Roboto');
+
+  return ThemeData(
+    useMaterial3: true,
+    brightness: brightness,
+    colorScheme: scheme,
+    fontFamily: 'Roboto',
+    textTheme: textTheme,
+
+    // AppBar: ensure strong contrast in both modes
+    appBarTheme: AppBarTheme(
+      elevation: 0,
+      centerTitle: false,
+      backgroundColor: isDark ? const Color(0xFF121212) : kBrandGreen,
+      foregroundColor: Colors.white,
+      titleTextStyle: textTheme.titleLarge?.copyWith(
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+      iconTheme: const IconThemeData(color: Colors.white),
+    ),
+
+    // Bottom Navigation: scheme tokens for contrast + consistency
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: isDark ? const Color(0xFF121212) : scheme.surface,
+      surfaceTintColor: Colors.transparent,
+      indicatorColor: scheme.primary.withOpacity(0.12),
+      labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
+        (states) {
+          final selected = states.contains(WidgetState.selected);
+          return textTheme.labelMedium!.copyWith(
+            fontWeight: FontWeight.w600,
+            color: selected ? scheme.primary : scheme.onSurfaceVariant,
+          );
+        },
+      ),
+      iconTheme: WidgetStateProperty.resolveWith<IconThemeData>(
+        (states) {
+          final selected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            size: 24,
+            color: selected ? scheme.primary : scheme.onSurfaceVariant,
+          );
+        },
+      ),
+    ),
+
+    // Card: use surface colors so onSurface text has correct contrast
+    cardTheme: CardThemeData(
+      elevation: isDark ? 4 : 2,
+      color: scheme.surface,
+      surfaceTintColor: scheme.surfaceTint,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: EdgeInsets.zero,
+    ),
+
+    // Elevated/Filled buttons: onPrimary text = accessible
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 2,
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+      ),
+    ),
+
+    // Inputs: outline color from scheme; focused = primary
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: scheme.surface,
+      hintStyle: textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+      labelStyle: textTheme.labelLarge?.copyWith(color: scheme.onSurfaceVariant),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: scheme.outlineVariant),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: scheme.primary, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    ),
+
+    // FAB: primary + onPrimary = readable
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: scheme.primary,
+      foregroundColor: scheme.onPrimary,
+      elevation: 6,
+      shape: const CircleBorder(),
+    ),
+
+    // Scaffold surfaces
+    scaffoldBackgroundColor:
+        isDark ? const Color(0xFF121212) : scheme.background,
+  );
 }
 
 class StudyBuddyApp extends StatefulWidget {
@@ -49,9 +173,7 @@ class _StudyBuddyAppState extends State<StudyBuddyApp> {
     super.dispose();
   }
 
-  void onThemeChanged() {
-    setState(() {});
-  }
+  void onThemeChanged() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
@@ -59,186 +181,11 @@ class _StudyBuddyAppState extends State<StudyBuddyApp> {
       title: 'StudyBuddy',
       debugShowCheckedModeBanner: false,
 
-      // Light Theme (Material 3)
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.light,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: kBrandGreen,
-          brightness: Brightness.light,
-        ),
-
-        // App Bar Theme
-        appBarTheme: const AppBarTheme(
-          elevation: 0,
-          centerTitle: false,
-          backgroundColor: kBrandGreen,
-          foregroundColor: Colors.white,
-          titleTextStyle: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-
-        // Navigation Bar Theme
-        navigationBarTheme: NavigationBarThemeData(
-          indicatorColor: kBrandGreen.withOpacity(0.12),
-          labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
-            (states) => TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-              color: states.contains(WidgetState.selected)
-                  ? kBrandGreen
-                  : Colors.grey[600],
-            ),
-          ),
-          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>(
-            (states) => IconThemeData(
-              size: 24,
-              color: states.contains(WidgetState.selected)
-                  ? kBrandGreen
-                  : Colors.grey[600],
-            ),
-          ),
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-        ),
-
-        // Card Theme
-        cardTheme: CardThemeData(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          color: Colors.white,
-        ),
-
-        // Elevated Button Theme
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          ),
-        ),
-
-        // Input Decoration Theme
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: kBrandGreen, width: 2),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
-        ),
-
-        // FAB Theme
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: kBrandGreen,
-          foregroundColor: Colors.white,
-          elevation: 6,
-          shape: CircleBorder(),
-        ),
-      ),
-
-      // Dark Theme (Material 3)
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: kBrandGreen,
-          brightness: Brightness.dark,
-        ),
-
-        // App Bar Theme
-        appBarTheme: AppBarTheme(
-          elevation: 0,
-          centerTitle: false,
-          backgroundColor: Colors.grey[900],
-          foregroundColor: Colors.white,
-          titleTextStyle: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-
-        // Navigation Bar Theme
-        navigationBarTheme: NavigationBarThemeData(
-          indicatorColor: kBrandGreen.withOpacity(0.12),
-          labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
-            (states) => TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-              color: states.contains(WidgetState.selected)
-                  ? kBrandGreen
-                  : Colors.grey[400],
-            ),
-          ),
-          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>(
-            (states) => IconThemeData(
-              size: 24,
-              color: states.contains(WidgetState.selected)
-                  ? kBrandGreen
-                  : Colors.grey[400],
-            ),
-          ),
-          backgroundColor: Colors.grey[900],
-          surfaceTintColor: Colors.transparent,
-        ),
-
-        // Card Theme
-        cardTheme: CardThemeData(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          color: Colors.grey[850],
-        ),
-
-        // Scaffold Background
-        scaffoldBackgroundColor: Colors.grey[900],
-
-        // Elevated Button Theme
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          ),
-        ),
-
-        // Input Decoration Theme
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: kBrandGreen, width: 2),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
-        ),
-
-        // FAB Theme
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: kBrandGreen,
-          foregroundColor: Colors.white,
-          elevation: 6,
-          shape: CircleBorder(),
-        ),
-      ),
-
+      // Light/Dark themes with Roboto + accessible contrast
+      theme: buildTheme(Brightness.light),
+      darkTheme: buildTheme(Brightness.dark),
       themeMode: themeManager.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+
       home: const Loginpage(),
     );
   }
