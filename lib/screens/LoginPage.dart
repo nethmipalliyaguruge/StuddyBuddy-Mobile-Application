@@ -62,7 +62,7 @@ class _LoginpageState extends State<Loginpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -104,18 +104,23 @@ class _LoginpageState extends State<Loginpage> {
           child: const Icon(Icons.school, size: 40, color: Colors.white),
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Welcome to StudyBuddy!',
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Theme.of(context).textTheme.headlineMedium?.color,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Please log in to continue.',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+          ),
         ),
       ],
     );
@@ -146,17 +151,20 @@ class _LoginpageState extends State<Loginpage> {
       },
       decoration: InputDecoration(
         labelText: 'Email',
+        labelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyMedium?.color,
+        ),
         prefixIcon: const Icon(Icons.email_outlined, color: kBrandGreen),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: kBrandGreen, width: 2),
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Theme.of(context).cardColor,
       ),
     );
   }
@@ -176,11 +184,14 @@ class _LoginpageState extends State<Loginpage> {
       },
       decoration: InputDecoration(
         labelText: 'Password',
+        labelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyMedium?.color,
+        ),
         prefixIcon: const Icon(Icons.lock_outlined, color: kBrandGreen),
         suffixIcon: IconButton(
           icon: Icon(
             isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-            color: Colors.grey,
+            color: Theme.of(context).iconTheme.color,
           ),
           onPressed: () {
             setState(() {
@@ -190,14 +201,14 @@ class _LoginpageState extends State<Loginpage> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: kBrandGreen, width: 2),
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Theme.of(context).cardColor,
       ),
     );
   }
@@ -227,7 +238,12 @@ class _LoginpageState extends State<Loginpage> {
     return TextButton(
       onPressed: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Forgot password feature coming soon!')),
+          const SnackBar(
+            content: Text(
+              'Forgot password feature coming soon!',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         );
       },
       child: const Text(
@@ -241,9 +257,13 @@ class _LoginpageState extends State<Loginpage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
+        Text(
           "Don't have an account? ",
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+          ),
         ),
         TextButton(
           onPressed: () async {
@@ -265,6 +285,7 @@ class _LoginpageState extends State<Loginpage> {
                   const SnackBar(
                     content: Text(
                       'Registration successful! You can now log in.',
+                      style: TextStyle(color: Colors.white),
                     ),
                     backgroundColor: kBrandGreen,
                   ),
@@ -288,8 +309,11 @@ class _LoginpageState extends State<Loginpage> {
 
       if (validateLogin(email, password)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful! Welcome to StudyBuddy!'),
+          SnackBar(
+            content: const Text(
+              'Login successful! Welcome to StudyBuddy!',
+              style: TextStyle(color: Colors.white),
+            ),
             backgroundColor: kBrandGreen,
           ),
         );
@@ -301,7 +325,10 @@ class _LoginpageState extends State<Loginpage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Invalid email or password. Please try again.'),
+            content: Text(
+              'Invalid email or password. Please try again.',
+              style: TextStyle(color: Colors.white),
+            ),
             backgroundColor: Colors.red,
           ),
         );

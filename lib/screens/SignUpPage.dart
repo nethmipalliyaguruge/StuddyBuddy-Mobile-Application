@@ -35,12 +35,15 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).iconTheme.color,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -84,18 +87,23 @@ class _SignUpPageState extends State<SignUpPage> {
           child: const Icon(Icons.person_add, size: 40, color: Colors.white),
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Create Account',
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Theme.of(context).textTheme.headlineMedium?.color,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Join StudyBuddy and start learning!',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+          ),
         ),
       ],
     );
@@ -173,11 +181,19 @@ class _SignUpPageState extends State<SignUpPage> {
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyMedium?.color,
+        ),
         hintText: hint,
+        hintStyle: TextStyle(
+          color: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.color?.withOpacity(0.5),
+        ),
         prefixIcon: Icon(icon, color: kBrandGreen),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -188,7 +204,7 @@ class _SignUpPageState extends State<SignUpPage> {
           borderSide: const BorderSide(color: Colors.red, width: 1),
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Theme.of(context).cardColor,
       ),
     );
   }
@@ -207,18 +223,26 @@ class _SignUpPageState extends State<SignUpPage> {
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyMedium?.color,
+        ),
         hintText: hint,
+        hintStyle: TextStyle(
+          color: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.color?.withOpacity(0.5),
+        ),
         prefixIcon: const Icon(Icons.lock_outlined, color: kBrandGreen),
         suffixIcon: IconButton(
           icon: Icon(
             isVisible ? Icons.visibility : Icons.visibility_off,
-            color: Colors.grey,
+            color: Theme.of(context).iconTheme.color,
           ),
           onPressed: onToggleVisibility,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -229,7 +253,7 @@ class _SignUpPageState extends State<SignUpPage> {
           borderSide: const BorderSide(color: Colors.red, width: 1),
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Theme.of(context).cardColor,
       ),
     );
   }
@@ -256,9 +280,14 @@ class _SignUpPageState extends State<SignUpPage> {
             },
             child: Padding(
               padding: const EdgeInsets.only(top: 9.0),
-              child: const Text(
+              child: Text(
                 'I accept the Terms and Conditions and Privacy Policy',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                ),
               ),
             ),
           ),
@@ -292,9 +321,13 @@ class _SignUpPageState extends State<SignUpPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
+        Text(
           'Already have an account? ',
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+          ),
         ),
         TextButton(
           onPressed: () {
@@ -373,7 +406,10 @@ class _SignUpPageState extends State<SignUpPage> {
       if (!acceptTerms) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Please accept the Terms and Conditions'),
+            content: Text(
+              'Please accept the Terms and Conditions',
+              style: TextStyle(color: Colors.white),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -391,6 +427,7 @@ class _SignUpPageState extends State<SignUpPage> {
         const SnackBar(
           content: Text(
             'Account created successfully! Redirecting to login...',
+            style: TextStyle(color: Colors.white),
           ),
           backgroundColor: kBrandGreen,
           duration: Duration(seconds: 2),
