@@ -241,7 +241,10 @@ class _ExplorePageState extends State<ExplorePage> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const NoteDetailPage()),
+          MaterialPageRoute(
+            builder: (context) =>
+                NoteDetailPage(product: product, category: selectedCategory),
+          ),
         );
       },
       child: Container(
