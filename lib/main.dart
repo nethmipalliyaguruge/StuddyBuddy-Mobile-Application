@@ -69,24 +69,20 @@ ThemeData buildTheme(Brightness brightness) {
       backgroundColor: isDark ? const Color(0xFF121212) : scheme.surface,
       surfaceTintColor: Colors.transparent,
       indicatorColor: scheme.primary.withOpacity(0.12),
-      labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
-        (states) {
-          final selected = states.contains(WidgetState.selected);
-          return textTheme.labelMedium!.copyWith(
-            fontWeight: FontWeight.w600,
-            color: selected ? scheme.primary : scheme.onSurfaceVariant,
-          );
-        },
-      ),
-      iconTheme: WidgetStateProperty.resolveWith<IconThemeData>(
-        (states) {
-          final selected = states.contains(WidgetState.selected);
-          return IconThemeData(
-            size: 24,
-            color: selected ? scheme.primary : scheme.onSurfaceVariant,
-          );
-        },
-      ),
+      labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
+        final selected = states.contains(WidgetState.selected);
+        return textTheme.labelMedium!.copyWith(
+          fontWeight: FontWeight.w600,
+          color: selected ? scheme.primary : scheme.onSurfaceVariant,
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+        final selected = states.contains(WidgetState.selected);
+        return IconThemeData(
+          size: 24,
+          color: selected ? scheme.primary : scheme.onSurfaceVariant,
+        );
+      }),
     ),
 
     // Card: use surface colors so onSurface text has correct contrast
@@ -124,7 +120,9 @@ ThemeData buildTheme(Brightness brightness) {
       filled: true,
       fillColor: scheme.surface,
       hintStyle: textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
-      labelStyle: textTheme.labelLarge?.copyWith(color: scheme.onSurfaceVariant),
+      labelStyle: textTheme.labelLarge?.copyWith(
+        color: scheme.onSurfaceVariant,
+      ),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -146,8 +144,9 @@ ThemeData buildTheme(Brightness brightness) {
     ),
 
     // Scaffold surfaces
-    scaffoldBackgroundColor:
-        isDark ? const Color(0xFF121212) : scheme.background,
+    scaffoldBackgroundColor: isDark
+        ? const Color(0xFF121212)
+        : scheme.background,
   );
 }
 

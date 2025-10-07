@@ -19,8 +19,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -67,292 +68,296 @@ class _ProfilePageState extends State<ProfilePage> {
     return SingleChildScrollView(
       child: Column(
         children: [
-            // Profile Header Section
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                children: [
-                  // Profile Avatar
-                  Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: kBrandGreen.withOpacity(0.1),
-                        child: const Icon(
-                          Icons.account_circle,
-                          size: 80,
-                          color: kBrandGreen,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: kBrandGreen,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // User Name
-                  Text(
-                    "John Doe",
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: kBrandGreen,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-
-                  // User Email
-                  Text(
-                    "john@studybuddy.com",
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Stats Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      buildStatItem(context, "Notes", "12"),
-                      buildStatItem(context, "Orders", "5"),
-                      buildStatItem(context, "Spent", "LKR 4,250"),
-                    ],
-                  ),
-                ],
+          // Profile Header Section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(20),
               ),
             ),
-
-            const SizedBox(height: 24),
-
-            // Profile Options
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Account',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  ProfileOption(
-                    icon: Icons.person_outline,
-                    label: "Personal Details",
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (context) => const PersonalDetailsScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  ProfileOption(
-                    icon: Icons.credit_card_outlined,
-                    label: "My Card",
-                    onTap: () {
-                      showComingSoonDialog(context, "My Card");
-                    },
-                  ),
-                  ProfileOption(
-                    icon: Icons.shopping_bag_outlined,
-                    label: "My Orders",
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (context) => const MyOrdersPage(),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  Text(
-                    'Preferences',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Dark Mode Toggle
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 8,
+            child: Column(
+              children: [
+                // Profile Avatar
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: kBrandGreen.withOpacity(0.1),
+                      child: const Icon(
+                        Icons.account_circle,
+                        size: 80,
+                        color: kBrandGreen,
                       ),
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
                         decoration: BoxDecoration(
-                          color: kBrandGreen.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: kBrandGreen,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
                         ),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // User Name
+                Text(
+                  "John Doe",
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: kBrandGreen,
+                  ),
+                ),
+                const SizedBox(height: 4),
+
+                // User Email
+                Text(
+                  "john@studybuddy.com",
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 16),
+
+                // Stats Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    buildStatItem(context, "Notes", "12"),
+                    buildStatItem(context, "Orders", "5"),
+                    buildStatItem(context, "Spent", "LKR 4,250"),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Profile Options
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Account',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                ProfileOption(
+                  icon: Icons.person_outline,
+                  label: "Personal Details",
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (context) => const PersonalDetailsScreen(),
+                      ),
+                    );
+                  },
+                ),
+                ProfileOption(
+                  icon: Icons.credit_card_outlined,
+                  label: "My Card",
+                  onTap: () {
+                    showComingSoonDialog(context, "My Card");
+                  },
+                ),
+                ProfileOption(
+                  icon: Icons.shopping_bag_outlined,
+                  label: "My Orders",
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (context) => const MyOrdersPage(),
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                Text(
+                  'Preferences',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Dark Mode Toggle
+                Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: kBrandGreen.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
                         child: Icon(
                           themeManager.isDarkMode
                               ? Icons.dark_mode
                               : Icons.light_mode,
+                          key: ValueKey(themeManager.isDarkMode),
                           color: kBrandGreen,
                           size: 24,
                         ),
                       ),
-                      title: Text(
-                        'Dark Mode',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      subtitle: Text(
-                        themeManager.isDarkMode ? 'Enabled' : 'Disabled',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      trailing: Switch.adaptive(
-                        value: themeManager.isDarkMode,
-                        onChanged: (value) {
-                          setState(() {
-                            themeManager.toggleTheme();
-                          });
-                        },
-                        activeColor: kBrandGreen,
+                    ),
+                    title: Text(
+                      'Dark Mode',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-
-                  ProfileOption(
-                    icon: Icons.notifications_outlined,
-                    label: "Notifications",
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Text(
-                        '3',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    subtitle: Text(
+                      themeManager.isDarkMode ? 'Enabled' : 'Disabled',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                     ),
-                    onTap: () {
-                      showComingSoonDialog(context, "Notifications");
-                    },
-                  ),
-                  ProfileOption(
-                    icon: Icons.language_outlined,
-                    label: "Language",
-                    subtitle: "English",
-                    onTap: () {
-                      showComingSoonDialog(context, "Language Settings");
-                    },
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  Text(
-                    'Support',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  ProfileOption(
-                    icon: Icons.help_outline,
-                    label: "Help Center",
-                    onTap: () {
-                      showComingSoonDialog(context, "Help Center");
-                    },
-                  ),
-                  ProfileOption(
-                    icon: Icons.privacy_tip_outlined,
-                    label: "Privacy Policy",
-                    onTap: () {
-                      showComingSoonDialog(context, "Privacy Policy");
-                    },
-                  ),
-                  ProfileOption(
-                    icon: Icons.article_outlined,
-                    label: "Terms and Conditions",
-                    onTap: () {
-                      showComingSoonDialog(context, "Terms and Conditions");
-                    },
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Logout Button
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 32),
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        showLogoutDialog(context);
+                    trailing: Switch.adaptive(
+                      value: themeManager.isDarkMode,
+                      onChanged: (value) {
+                        setState(() {
+                          themeManager.toggleTheme();
+                        });
                       },
-                      icon: const Icon(Icons.logout),
-                      label: const Text('Logout'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade50,
-                        foregroundColor: Colors.red,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      activeColor: kBrandGreen,
+                    ),
+                  ),
+                ),
+
+                ProfileOption(
+                  icon: Icons.notifications_outlined,
+                  label: "Notifications",
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      '3',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                ],
-              ),
+                  onTap: () {
+                    showComingSoonDialog(context, "Notifications");
+                  },
+                ),
+                ProfileOption(
+                  icon: Icons.language_outlined,
+                  label: "Language",
+                  subtitle: "English",
+                  onTap: () {
+                    showComingSoonDialog(context, "Language Settings");
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                Text(
+                  'Support',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                ProfileOption(
+                  icon: Icons.help_outline,
+                  label: "Help Center",
+                  onTap: () {
+                    showComingSoonDialog(context, "Help Center");
+                  },
+                ),
+                ProfileOption(
+                  icon: Icons.privacy_tip_outlined,
+                  label: "Privacy Policy",
+                  onTap: () {
+                    showComingSoonDialog(context, "Privacy Policy");
+                  },
+                ),
+                ProfileOption(
+                  icon: Icons.article_outlined,
+                  label: "Terms and Conditions",
+                  onTap: () {
+                    showComingSoonDialog(context, "Terms and Conditions");
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                // Logout Button
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 32),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      showLogoutDialog(context);
+                    },
+                    icon: const Icon(Icons.logout),
+                    label: const Text('Logout'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade50,
+                      foregroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildLandscapeLayout() {
@@ -361,17 +366,13 @@ class _ProfilePageState extends State<ProfilePage> {
         // LEFT SIDE - Profile Header Section
         Expanded(
           flex: 2,
-          child: SingleChildScrollView(
-            child: _buildProfileHeader(),
-          ),
+          child: SingleChildScrollView(child: _buildProfileHeader()),
         ),
-        
+
         // RIGHT SIDE - Profile Options
         Expanded(
           flex: 3,
-          child: SingleChildScrollView(
-            child: _buildProfileOptions(),
-          ),
+          child: SingleChildScrollView(child: _buildProfileOptions()),
         ),
       ],
     );
@@ -418,7 +419,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
           const SizedBox(height: 20),
-          
+
           // User Name
           Text(
             "John Doe",
@@ -428,16 +429,16 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           const SizedBox(height: 8),
-          
+
           // User Email
           Text(
             "john@studybuddy.com",
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
           ),
           const SizedBox(height: 24),
-          
+
           // Stats in landscape - vertical layout
           Column(
             children: [
@@ -453,7 +454,11 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildLandscapeStatItem(BuildContext context, String label, String value) {
+  Widget _buildLandscapeStatItem(
+    BuildContext context,
+    String label,
+    String value,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
@@ -563,25 +568,29 @@ class _ProfilePageState extends State<ProfilePage> {
                   color: kBrandGreen.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  themeManager.isDarkMode
-                      ? Icons.dark_mode
-                      : Icons.light_mode,
-                  color: kBrandGreen,
-                  size: 24,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    themeManager.isDarkMode
+                        ? Icons.dark_mode
+                        : Icons.light_mode,
+                    key: ValueKey(themeManager.isDarkMode),
+                    color: kBrandGreen,
+                    size: 24,
+                  ),
                 ),
               ),
               title: Text(
                 'Dark Mode',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
               ),
               subtitle: Text(
                 themeManager.isDarkMode ? 'Enabled' : 'Disabled',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
               trailing: Switch.adaptive(
                 value: themeManager.isDarkMode,
@@ -599,10 +608,7 @@ class _ProfilePageState extends State<ProfilePage> {
             icon: Icons.notifications_outlined,
             label: "Notifications",
             trailing: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 2,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
                 color: Colors.red,
                 borderRadius: BorderRadius.circular(10),
