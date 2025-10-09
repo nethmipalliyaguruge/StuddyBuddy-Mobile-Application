@@ -144,9 +144,7 @@ ThemeData buildTheme(Brightness brightness) {
     ),
 
     // Scaffold surfaces
-    scaffoldBackgroundColor: isDark
-        ? const Color(0xFF121212)
-        : scheme.background,
+    scaffoldBackgroundColor: isDark ? const Color(0xFF121212) : scheme.surface,
   );
 }
 

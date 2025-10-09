@@ -17,7 +17,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   final Color primary = const Color(0xFF006644);
 
   // Get product-specific data with fallbacks
-  String get productTitle => widget.product?['title'] ?? 'Database & Data Structures - Normalization';
+  String get productTitle =>
+      widget.product?['title'] ?? 'Database & Data Structures - Normalization';
   String get productCategory => widget.category ?? 'Computing';
   String get productLevel => widget.product?['level'] ?? 'Level 5';
   double get productRating => (widget.product?['rating'] ?? 4.8).toDouble();
@@ -171,7 +172,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                     padding: const EdgeInsets.all(12),
                     children: [
                       buildTitleAndPrice(),
+                      const SizedBox(height: 16),
                       buildPreviewCard(),
+                      const SizedBox(height: 16),
                       buildDescriptionCard(),
                     ],
                   ),
@@ -184,9 +187,11 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                     padding: const EdgeInsets.all(12),
                     children: [
                       buildModuleCard(),
+                      const SizedBox(height: 16),
                       buildSellerCard(),
+                      const SizedBox(height: 16),
                       buildPurchaseCard(total, fee),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       buildBottomBar(total),
                     ],
                   ),
@@ -194,21 +199,24 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
               ],
             )
           : ListView(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               children: [
                 buildTitleAndPrice(),
+                const SizedBox(height: 16),
                 buildPreviewCard(),
+                const SizedBox(height: 16),
                 buildDescriptionCard(),
+                const SizedBox(height: 16),
                 buildModuleCard(),
+                const SizedBox(height: 16),
                 buildSellerCard(),
+                const SizedBox(height: 16),
                 buildPurchaseCard(total, fee),
                 const SizedBox(height: 120),
               ],
             ),
     );
   }
-
-
 
   Widget buildTitleAndPrice() {
     return Card(
@@ -550,7 +558,6 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
     // Add to cart using CartManager
     CartManager().addItem(product, productCategory);
-
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

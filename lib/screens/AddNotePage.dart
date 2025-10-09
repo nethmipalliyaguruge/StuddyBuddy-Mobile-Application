@@ -212,22 +212,31 @@ class _AddNotePageState extends State<AddNotePage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
           Icon(Icons.upload_file, size: 48, color: kBrandGreen),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Upload Note Files',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+            ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Upload PDF, DOCX, or image files',
-            style: TextStyle(color: Colors.grey, fontSize: 14),
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+              fontSize: 14,
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
@@ -245,7 +254,7 @@ class _AddNotePageState extends State<AddNotePage> {
             icon: const Icon(Icons.attach_file),
             label: const Text('Choose Files'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).cardColor,
               foregroundColor: kBrandGreen,
               side: const BorderSide(color: kBrandGreen),
               shape: RoundedRectangleBorder(
