@@ -362,12 +362,6 @@ class HomePage extends StatelessWidget {
     required double rating,
   }) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const NoteDetailPage()),
-        );
-      },
       child: Container(
         width: 160,
         margin: const EdgeInsets.only(right: 12),
@@ -469,7 +463,10 @@ class HomePage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                // Navigate to explore tab
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ExplorePage()),
+                );
               },
               child: const Text('View All'),
             ),
