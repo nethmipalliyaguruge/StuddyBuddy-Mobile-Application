@@ -134,14 +134,16 @@ class _ExplorePageState extends State<ExplorePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const CartPage()),
+                  MaterialPageRoute(builder: (context) => CartPage()),
                 );
               },
               style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: kBrandGreen,
                 minimumSize: const Size(60, 40),
                 padding: const EdgeInsets.all(8),
               ),
-              child: const Icon(Icons.shopping_cart),
+              child: Icon(Icons.shopping_cart),
             ),
           ],
         ),

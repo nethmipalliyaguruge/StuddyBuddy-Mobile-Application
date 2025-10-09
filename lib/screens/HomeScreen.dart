@@ -73,10 +73,12 @@ class HomePage extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: kBrandGreen,
                 minimumSize: const Size(60, 40),
                 padding: const EdgeInsets.all(8),
               ),
-              child: Icon(Icons.shopping_cart, color: kBrandGreen),
+              child: Icon(Icons.shopping_cart),
             ),
           ],
         ),

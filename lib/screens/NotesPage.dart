@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:studybuddy/screens/AddNotePage.dart';
-import 'package:studybuddy/screens/detail_page.dart';
 
 const kBrandGreen = Color(0xFF006644);
 
-class NotesPage extends StatelessWidget {
+class NotesPage extends StatefulWidget {
   const NotesPage({super.key});
 
+  @override
+  State<NotesPage> createState() => _NotesPageState();
+}
+
+class _NotesPageState extends State<NotesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,29 +116,7 @@ class NotesPage extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12.0),
       child: InkWell(
         onTap: () {
-          Navigator.of(context).push(
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  NoteDetailPage(product: product),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0);
-                    const end = Offset.zero;
-                    const curve = Curves.easeInOutCubic;
-
-                    var tween = Tween(
-                      begin: begin,
-                      end: end,
-                    ).chain(CurveTween(curve: curve));
-
-                    return SlideTransition(
-                      position: animation.drive(tween),
-                      child: FadeTransition(opacity: animation, child: child),
-                    );
-                  },
-              transitionDuration: const Duration(milliseconds: 250),
-            ),
-          );
+          _navigateToEditNote(context, title, price, index);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -182,10 +164,50 @@ class NotesPage extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  _navigateToEditNote(context, title, price, index);
+                },
+                color: Colors.grey[600],
+                iconSize: 20,
+              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _navigateToEditNote(
+    BuildContext context,
+    String title,
+    String price,
+    int index,
+  ) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => AddNotePage(
+          existingTitle: title,
+          existingPrice: price,
+          isEditing: true,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOutCubic;
+
+          var tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: FadeTransition(opacity: animation, child: child),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 250),
       ),
     );
   }

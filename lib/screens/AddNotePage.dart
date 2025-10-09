@@ -3,7 +3,16 @@ import 'package:flutter/material.dart';
 const kBrandGreen = Color(0xFF006644);
 
 class AddNotePage extends StatefulWidget {
-  const AddNotePage({super.key});
+  final String? existingTitle;
+  final String? existingPrice;
+  final bool isEditing;
+
+  const AddNotePage({
+    super.key,
+    this.existingTitle,
+    this.existingPrice,
+    this.isEditing = false,
+  });
 
   @override
   State<AddNotePage> createState() => _AddNotePageState();
@@ -14,11 +23,33 @@ class _AddNotePageState extends State<AddNotePage> {
   String? selectedLevel;
   String? selectedModule;
 
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController priceController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill fields if editing
+    if (widget.isEditing) {
+      titleController.text = widget.existingTitle ?? '';
+      priceController.text = widget.existingPrice?.replaceAll('LKR ', '') ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    priceController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Note'),
+        title: Text(widget.isEditing ? 'Edit Note' : 'Add New Note'),
         centerTitle: true,
         backgroundColor: kBrandGreen,
         foregroundColor: Colors.white,
@@ -28,18 +59,24 @@ class _AddNotePageState extends State<AddNotePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            buildTextField(label: 'Note Title', hint: 'Enter note title'),
+            buildTextField(
+              label: 'Note Title',
+              hint: 'Enter note title',
+              controller: titleController,
+            ),
             const SizedBox(height: 16),
             buildTextField(
               label: 'Price (LKR)',
               hint: 'Enter price in LKR',
               keyboardType: TextInputType.number,
+              controller: priceController,
             ),
             const SizedBox(height: 20),
             buildTextField(
               label: 'Note Description',
               hint: 'Enter a brief description',
               maxLines: 8,
+              controller: descriptionController,
             ),
             const SizedBox(height: 20),
             Text(
@@ -93,6 +130,7 @@ class _AddNotePageState extends State<AddNotePage> {
     required String hint,
     int maxLines = 1,
     TextInputType? keyboardType,
+    TextEditingController? controller,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,6 +143,7 @@ class _AddNotePageState extends State<AddNotePage> {
         ),
         const SizedBox(height: 8),
         TextField(
+          controller: controller,
           maxLines: maxLines,
           keyboardType: keyboardType,
           decoration: InputDecoration(
@@ -248,8 +287,8 @@ class _AddNotePageState extends State<AddNotePage> {
             onPressed: () {
               saveNote();
             },
-            icon: const Icon(Icons.save),
-            label: const Text('Save Note'),
+            icon: Icon(widget.isEditing ? Icons.update : Icons.save),
+            label: Text(widget.isEditing ? 'Update Note' : 'Save Note'),
             style: ElevatedButton.styleFrom(
               backgroundColor: kBrandGreen,
               foregroundColor: Colors.white,
@@ -266,12 +305,13 @@ class _AddNotePageState extends State<AddNotePage> {
 
   void saveNote() {
     // Validate fields
+    String message = widget.isEditing
+        ? 'Note updated successfully!'
+        : 'Note saved successfully!';
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Note saved successfully!',
-          style: TextStyle(color: Colors.white),
-        ),
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
         backgroundColor: kBrandGreen,
       ),
     );
