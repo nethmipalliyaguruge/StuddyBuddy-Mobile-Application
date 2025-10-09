@@ -439,11 +439,11 @@ class _ProfilePageState extends State<ProfilePage> {
           // Stats in landscape - vertical layout
           Column(
             children: [
-              _buildLandscapeStatItem(context, "Notes", "12"),
+              _buildLandscapeStatItem(context, "Notes", "5"),
               const SizedBox(height: 16),
-              _buildLandscapeStatItem(context, "Orders", "5"),
+              _buildLandscapeStatItem(context, "Orders", "3"),
               const SizedBox(height: 16),
-              _buildLandscapeStatItem(context, "Spent", "LKR 4,250"),
+              _buildLandscapeStatItem(context, "Spent", "LKR 3,250"),
             ],
           ),
         ],

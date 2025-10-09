@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:studybuddy/screens/AddNotePage.dart';
 import 'package:studybuddy/screens/CartPage.dart';
+import 'package:studybuddy/screens/detail_page.dart';
 import 'package:studybuddy/screens/ExplorePage.dart';
 import 'package:studybuddy/screens/NotesPage.dart';
 import 'package:studybuddy/screens/ProfilePage.dart';
-import 'package:studybuddy/screens/detail_page.dart';
 
 const kBrandGreen = Color(0xFF006644);
 
@@ -328,24 +328,27 @@ class HomePage extends StatelessWidget {
             children: [
               buildFeaturedNoteCard(
                 context: context,
-                title: 'Database Systems',
+                title: 'Database Systems & Data Structures',
                 subtitle: 'Complete guide',
                 price: 'LKR 850',
                 rating: 4.8,
+                category: 'Computing',
               ),
               buildFeaturedNoteCard(
                 context: context,
-                title: 'Web Development',
+                title: 'Web Development Fundamentals',
                 subtitle: 'Frontend & Backend',
                 price: 'LKR 800',
                 rating: 4.9,
+                category: 'Computing',
               ),
               buildFeaturedNoteCard(
                 context: context,
-                title: 'Mobile App Dev',
+                title: 'Mobile App Development',
                 subtitle: 'Flutter & React Native',
                 price: 'LKR 350',
                 rating: 4.7,
+                category: 'Computing',
               ),
             ],
           ),
@@ -360,8 +363,29 @@ class HomePage extends StatelessWidget {
     required String subtitle,
     required String price,
     required double rating,
+    String? category,
   }) {
     return GestureDetector(
+      onTap: () {
+        // Create note data to pass to detail page
+        final noteData = {
+          'title': title,
+          'subtitle': subtitle,
+          'price': price,
+          'rating': rating,
+        };
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NoteDetailPage(
+              product: noteData,
+              category:
+                  category ?? 'Computing', // Use passed category or default
+            ),
+          ),
+        );
+      },
       child: Container(
         width: 160,
         margin: const EdgeInsets.only(right: 12),
@@ -578,9 +602,9 @@ class HomePage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          buildStatItem(context, 'Notes Owned', '12'),
-          buildStatItem(context, 'Total Spent', 'LKR 4,250'),
-          buildStatItem(context, 'Downloads', '28'),
+          buildStatItem(context, 'Notes Owned', '5'),
+          buildStatItem(context, 'Total Spent', 'LKR 3,250'),
+          buildStatItem(context, 'Downloads', '3'),
         ],
       ),
     );
