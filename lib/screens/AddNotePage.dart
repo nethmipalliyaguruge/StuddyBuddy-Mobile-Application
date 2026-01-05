@@ -117,6 +117,8 @@ class _AddNotePageState extends State<AddNotePage> {
             ),
             const SizedBox(height: 20),
             buildFileUploadSection(),
+            const SizedBox(height: 20),
+            buildPreviewImagesSection(),
             const SizedBox(height: 30),
             buildActionButtons(),
           ],
@@ -209,61 +211,135 @@ class _AddNotePageState extends State<AddNotePage> {
   }
 
   Widget buildFileUploadSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.upload_file, size: 48, color: kBrandGreen),
-          const SizedBox(height: 12),
-          Text(
-            'Upload Note Files',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).textTheme.bodyLarge?.color,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Upload File',
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.shade300,
+              style: BorderStyle.solid,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Upload PDF, DOCX, or image files',
-            style: TextStyle(
-              color: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.color?.withOpacity(0.7),
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'File upload feature coming soon!',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: kBrandGreen,
-                ),
-              );
-            },
-            icon: const Icon(Icons.attach_file),
-            label: const Text('Choose Files'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).cardColor,
-              foregroundColor: kBrandGreen,
-              side: const BorderSide(color: kBrandGreen),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          child: Column(
+            children: [
+              Icon(
+                Icons.cloud_upload_outlined,
+                size: 48,
+                color: Colors.grey.shade400,
               ),
-            ),
+              const SizedBox(height: 12),
+              Text(
+                'Click to upload or drag & drop',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'PDF, DOC, DOCX, PPT, PPTX',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildPreviewImagesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Preview Images (Required)',
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Upload clear images of the first 3 pages to show buyers a preview. Accepted: JPG, PNG, WEBP.',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(child: buildImageUploadField('Page 1')),
+            const SizedBox(width: 12),
+            Expanded(child: buildImageUploadField('Page 2')),
+            const SizedBox(width: 12),
+            Expanded(child: buildImageUploadField('Page 3')),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget buildImageUploadField(String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Image selection coming soon!'),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey.shade200,
+                  foregroundColor: Colors.black87,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  minimumSize: const Size(0, 36),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                child: const Text(
+                  'Choose File',
+                  style: TextStyle(fontSize: 11),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'No file chosen',
+                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
