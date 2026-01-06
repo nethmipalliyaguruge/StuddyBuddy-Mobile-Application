@@ -82,14 +82,13 @@ class HomePage extends StatelessWidget {
             ),
           ],
         ),
-        backgroundColor: kBrandGreen,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildWelcomeSection(),
+            buildWelcomeSection(context),
             const SizedBox(height: 24),
             buildQuickActionsSection(context),
             const SizedBox(height: 24),
@@ -104,42 +103,64 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget buildWelcomeSection() {
+  Widget buildWelcomeSection(BuildContext context) {
+    bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [kBrandGreen, kBrandGreen.withOpacity(0.8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: isDark ? Theme.of(context).cardColor : null,
+        gradient: isDark
+            ? null
+            : LinearGradient(
+                colors: [kBrandGreen, kBrandGreen.withOpacity(0.8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Welcome back, John! 👋',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: isDark
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Colors.white,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Ready to continue your learning journey?',
-            style: TextStyle(fontSize: 16, color: Colors.white70),
+            style: TextStyle(
+              fontSize: 16,
+              color: isDark
+                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                  : Colors.white70,
+            ),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              Icon(Icons.trending_up, color: Colors.white70, size: 20),
+              Icon(
+                Icons.trending_up,
+                color: isDark
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.white70,
+                size: 20,
+              ),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 '5 new notes available',
-                style: TextStyle(color: Colors.white70, fontSize: 14),
+                style: TextStyle(
+                  color: isDark
+                      ? Theme.of(context).colorScheme.onSurfaceVariant
+                      : Colors.white70,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),

@@ -53,7 +53,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ],
         ),
-        backgroundColor: kBrandGreen,
         elevation: 0,
         centerTitle: false,
       ),

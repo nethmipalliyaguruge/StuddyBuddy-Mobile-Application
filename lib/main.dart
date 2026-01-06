@@ -2,27 +2,63 @@ import 'package:flutter/material.dart';
 import 'package:studybuddy/screens/LoginPage.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const StudyBuddyApp());
 }
 
 const kBrandGreen = Color(0xFF006644);
 
 /// Theme Manager for Dark/Light mode toggle
-class ThemeManager extends ChangeNotifier {
+class ThemeManager extends ChangeNotifier with WidgetsBindingObserver {
   static final ThemeManager instance = ThemeManager.internal();
   factory ThemeManager() => instance;
-  ThemeManager.internal();
 
-  bool _isDarkMode = false;
-  bool get isDarkMode => _isDarkMode;
+  ThemeManager.internal() {
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    // Always notify listeners when platform brightness changes
+    notifyListeners();
+    super.didChangePlatformBrightness();
+  }
+
+  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode get themeMode => _themeMode;
+
+  bool get isDarkMode {
+    if (_themeMode == ThemeMode.system) {
+      // Use platformDispatcher to get the system brightness directly
+      // This works even if context is not available yet
+      final brightness =
+          WidgetsBinding.instance.platformDispatcher.platformBrightness;
+      return brightness == Brightness.dark;
+    }
+    return _themeMode == ThemeMode.dark;
+  }
 
   void toggleTheme() {
-    _isDarkMode = !_isDarkMode;
+    // If we are currently following system, clicking toggle locks it to the OPPOSITE of current system state.
+    // Otherwise, it just swaps.
+    if (_themeMode == ThemeMode.system) {
+      _themeMode = isDarkMode ? ThemeMode.light : ThemeMode.dark;
+    } else {
+      _themeMode = _themeMode == ThemeMode.light
+          ? ThemeMode.dark
+          : ThemeMode.light;
+    }
     notifyListeners();
   }
 
   void setTheme(bool isDark) {
-    _isDarkMode = isDark;
+    _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
   }
 }
@@ -181,7 +217,7 @@ class _StudyBuddyAppState extends State<StudyBuddyApp> {
       // Light/Dark themes with Roboto + accessible contrast
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
-      themeMode: themeManager.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      themeMode: themeManager.themeMode,
 
       home: const Loginpage(),
     );
