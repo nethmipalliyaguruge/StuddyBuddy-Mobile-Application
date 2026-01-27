@@ -196,7 +196,7 @@ class _ExplorePageState extends State<ExplorePage> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: kBrandGreen.withOpacity(0.3),
+                    color: kBrandGreen.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -255,7 +255,7 @@ class _ExplorePageState extends State<ExplorePage> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).shadowColor.withOpacity(0.1),
+              color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -271,7 +271,7 @@ class _ExplorePageState extends State<ExplorePage> {
                 height: 60,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [kBrandGreen.withOpacity(0.8), kBrandGreen],
+                    colors: [kBrandGreen.withValues(alpha: 0.8), kBrandGreen],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -298,7 +298,7 @@ class _ExplorePageState extends State<ExplorePage> {
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(
                           context,
-                        ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                        ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -367,6 +367,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
                       // Navigate to CartPage after a short delay
                       Future.delayed(const Duration(milliseconds: 500), () {
+                        if (!mounted) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(

@@ -104,7 +104,7 @@ class _SignUpPageState extends State<SignUpPage> {
             fontSize: 16,
             color: Theme.of(
               context,
-            ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+            ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
           ),
         ),
       ],
@@ -214,7 +214,7 @@ class _SignUpPageState extends State<SignUpPage> {
         hintStyle: TextStyle(
           color: Theme.of(
             context,
-          ).textTheme.bodyMedium?.color?.withOpacity(0.5),
+          ).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
         ),
         prefixIcon: Icon(icon, color: kBrandGreen),
         border: OutlineInputBorder(
@@ -256,7 +256,7 @@ class _SignUpPageState extends State<SignUpPage> {
         hintStyle: TextStyle(
           color: Theme.of(
             context,
-          ).textTheme.bodyMedium?.color?.withOpacity(0.5),
+          ).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
         ),
         prefixIcon: const Icon(Icons.lock_outlined, color: kBrandGreen),
         suffixIcon: IconButton(
@@ -312,7 +312,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   fontSize: 14,
                   color: Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -335,7 +335,7 @@ class _SignUpPageState extends State<SignUpPage> {
           style: TextStyle(
             color: Theme.of(
               context,
-            ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+            ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
           ),
         ),
         TextButton(
@@ -386,6 +386,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
       // Navigate back to LoginPage with credentials
       Future.delayed(const Duration(seconds: 2), () {
+        if (!mounted) return;
         Navigator.pop(context, {
           'email': registeredEmail,
           'password': registeredPassword,

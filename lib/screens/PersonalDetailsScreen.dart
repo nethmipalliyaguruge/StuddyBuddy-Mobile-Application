@@ -189,6 +189,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
 
       // Optional: Navigate back after successful save
       Future.delayed(const Duration(seconds: 2), () {
+        if (!mounted) return;
         Navigator.pop(context);
       });
     }

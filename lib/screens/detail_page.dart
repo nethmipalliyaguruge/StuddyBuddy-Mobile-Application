@@ -287,7 +287,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                             size: 40,
                             color: Theme.of(
                               context,
-                            ).iconTheme.color?.withOpacity(0.5),
+                            ).iconTheme.color?.withValues(alpha: 0.5),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -298,7 +298,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                                       .textTheme
                                       .bodyMedium
                                       ?.color
-                                      ?.withOpacity(0.5),
+                                      ?.withValues(alpha: 0.5),
                                 ),
                           ),
                         ],
@@ -414,7 +414,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       child: ListTile(
         leading: CircleAvatar(
           radius: 24,
-          backgroundColor: primary.withOpacity(0.1),
+          backgroundColor: primary.withValues(alpha: 0.1),
           child: Icon(Icons.person, color: primary),
         ),
         title: Text(

@@ -80,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     CircleAvatar(
                       radius: 50,
-                      backgroundColor: kBrandGreen.withOpacity(0.1),
+                      backgroundColor: kBrandGreen.withValues(alpha: 0.1),
                       child: const Icon(
                         Icons.account_circle,
                         size: 80,
@@ -205,7 +205,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 2),
                       ),
@@ -219,7 +219,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: kBrandGreen.withOpacity(0.1),
+                        color: kBrandGreen.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: AnimatedSwitcher(
@@ -388,7 +388,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundColor: kBrandGreen.withOpacity(0.1),
+                backgroundColor: kBrandGreen.withValues(alpha: 0.1),
                 child: const Icon(
                   Icons.account_circle,
                   size: 100,
@@ -457,7 +457,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: kBrandGreen.withOpacity(0.1),
+        color: kBrandGreen.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -546,7 +546,7 @@ class _ProfilePageState extends State<ProfilePage> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -560,7 +560,7 @@ class _ProfilePageState extends State<ProfilePage> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: kBrandGreen.withOpacity(0.1),
+                  color: kBrandGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: AnimatedSwitcher(
@@ -716,7 +716,7 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('$feature'),
+          title: Text(feature),
           content: Text('$feature feature is coming soon!'),
           actions: [
             TextButton(
@@ -788,7 +788,7 @@ class ProfileOption extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -799,7 +799,7 @@ class ProfileOption extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: kBrandGreen.withOpacity(0.1),
+            color: kBrandGreen.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: kBrandGreen, size: 24),

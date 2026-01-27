@@ -13,7 +13,7 @@ class CustomTextField extends StatelessWidget {
   final VoidCallback? onToggleVisibility;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
     this.hint,
@@ -23,7 +23,7 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.validator,
     this.onToggleVisibility,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class CustomTextField extends StatelessWidget {
         hintStyle: TextStyle(
           color: Theme.of(
             context,
-          ).textTheme.bodyMedium?.color?.withOpacity(0.5),
+          ).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
         ),
         prefixIcon: prefixIcon != null
             ? Icon(prefixIcon, color: kBrandGreen)

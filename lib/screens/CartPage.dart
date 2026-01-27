@@ -161,7 +161,7 @@ class _CartPageState extends State<CartPage> {
               fontWeight: FontWeight.w600,
               color: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.color?.withOpacity(0.6),
+              ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 8),
@@ -170,7 +170,7 @@ class _CartPageState extends State<CartPage> {
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: Theme.of(
                 context,
-              ).textTheme.bodyLarge?.color?.withOpacity(0.5),
+              ).textTheme.bodyLarge?.color?.withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 32),
@@ -218,7 +218,7 @@ class _CartPageState extends State<CartPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -234,7 +234,7 @@ class _CartPageState extends State<CartPage> {
               height: 60,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [kBrandGreen.withOpacity(0.8), kBrandGreen],
+                  colors: [kBrandGreen.withValues(alpha: 0.8), kBrandGreen],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -261,7 +261,7 @@ class _CartPageState extends State<CartPage> {
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
-                      ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -404,9 +404,9 @@ class _CartPageState extends State<CartPage> {
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: kBrandGreen.withOpacity(0.1),
+          color: kBrandGreen.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: kBrandGreen.withOpacity(0.3)),
+          border: Border.all(color: kBrandGreen.withValues(alpha: 0.3)),
         ),
         child: Icon(icon, color: kBrandGreen, size: 16),
       ),
@@ -421,7 +421,7 @@ class _CartPageState extends State<CartPage> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.2),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

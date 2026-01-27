@@ -120,7 +120,7 @@ class _LoginpageState extends State<Loginpage> {
             fontSize: 16,
             color: Theme.of(
               context,
-            ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+            ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
           ),
         ),
       ],
@@ -216,7 +216,7 @@ class _LoginpageState extends State<Loginpage> {
           style: TextStyle(
             color: Theme.of(
               context,
-            ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+            ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
           ),
         ),
         TextButton(
@@ -229,6 +229,7 @@ class _LoginpageState extends State<Loginpage> {
             // If user successfully registered, prefill the login form
             if (result != null && result is Map<String, dynamic>) {
               if (result['registered'] == true) {
+                if (!mounted) return;
                 setState(() {
                   emailController.text = result['email'] ?? '';
                   passwordController.text = result['password'] ?? '';

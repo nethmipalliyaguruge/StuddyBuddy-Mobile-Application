@@ -103,7 +103,7 @@ ThemeData buildTheme(Brightness brightness) {
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: isDark ? const Color(0xFF121212) : scheme.surface,
       surfaceTintColor: Colors.transparent,
-      indicatorColor: scheme.primary.withOpacity(0.12),
+      indicatorColor: scheme.primary.withValues(alpha: 0.12),
       labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
         final selected = states.contains(WidgetState.selected);
         return textTheme.labelMedium!.copyWith(
