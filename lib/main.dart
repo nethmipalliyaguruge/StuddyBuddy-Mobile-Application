@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:studybuddy/screens/LoginPage.dart';
+import 'package:studybuddy/screens/login_page.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 void main() {

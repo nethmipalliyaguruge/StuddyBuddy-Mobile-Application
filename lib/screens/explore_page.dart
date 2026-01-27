@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:studybuddy/screens/CartPage.dart';
+import 'package:studybuddy/screens/cart_page.dart';
 import 'package:studybuddy/screens/detail_page.dart';
 import 'package:studybuddy/utils/constants.dart';
 

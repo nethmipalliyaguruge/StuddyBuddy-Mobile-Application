@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:studybuddy/screens/HomeScreen.dart';
-import 'package:studybuddy/screens/SignUpPage.dart';
+import 'package:studybuddy/screens/home_screen.dart';
+import 'package:studybuddy/screens/sign_up_page.dart';
 import 'package:studybuddy/utils/constants.dart';
 import 'package:studybuddy/widgets/custom_button.dart';
 import 'package:studybuddy/widgets/custom_textfield.dart';

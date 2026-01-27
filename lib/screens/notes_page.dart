@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:studybuddy/screens/AddNotePage.dart';
+import 'package:studybuddy/screens/add_note_page.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class NotesPage extends StatefulWidget {

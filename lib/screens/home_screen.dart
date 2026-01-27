@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:studybuddy/screens/AddNotePage.dart';
-import 'package:studybuddy/screens/CartPage.dart';
+import 'package:studybuddy/screens/add_note_page.dart';
+import 'package:studybuddy/screens/cart_page.dart';
 import 'package:studybuddy/screens/detail_page.dart';
-import 'package:studybuddy/screens/ExplorePage.dart';
-import 'package:studybuddy/screens/NotesPage.dart';
-import 'package:studybuddy/screens/ProfilePage.dart';
+import 'package:studybuddy/screens/explore_page.dart';
+import 'package:studybuddy/screens/notes_page.dart';
+import 'package:studybuddy/screens/profile_page.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class Homescreen extends StatefulWidget {

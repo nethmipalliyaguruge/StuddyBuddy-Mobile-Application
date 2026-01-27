@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:studybuddy/screens/LoginPage.dart';
-import 'package:studybuddy/screens/MyOrdersPage.dart';
-import 'package:studybuddy/screens/PersonalDetailsScreen.dart';
-import 'package:studybuddy/screens/CartPage.dart';
+import 'package:studybuddy/screens/login_page.dart';
+import 'package:studybuddy/screens/my_orders_page.dart';
+import 'package:studybuddy/screens/personal_details_screen.dart';
+import 'package:studybuddy/screens/cart_page.dart';
 import '../main.dart';
 import 'package:studybuddy/utils/constants.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'LoginPage.dart';
+import 'login_page.dart';
 import 'package:studybuddy/utils/constants.dart';
 import 'package:studybuddy/utils/helpers.dart';
 import 'package:studybuddy/widgets/custom_button.dart';
