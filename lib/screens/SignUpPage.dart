@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'LoginPage.dart';
-
-const kBrandGreen = Color(0xFF006644);
+import 'package:studybuddy/utils/constants.dart';
+import 'package:studybuddy/utils/helpers.dart';
+import 'package:studybuddy/widgets/custom_button.dart';
+import 'package:studybuddy/widgets/custom_textfield.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -112,56 +114,80 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget buildSignUpForm() {
     return Column(
       children: [
-        buildTextField(
+        CustomTextField(
           controller: nameController,
           label: 'Full Name',
           hint: 'Enter your full name',
-          icon: Icons.person_outline,
-          validator: validateName,
+          prefixIcon: Icons.person_outline,
+          validator: Helpers.validateName,
         ),
         const SizedBox(height: 16),
-        buildTextField(
+        CustomTextField(
           controller: emailController,
           label: 'Email Address',
           hint: 'Enter your email',
-          icon: Icons.email_outlined,
+          prefixIcon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
-          validator: validateEmail,
+          validator: Helpers.validateEmail,
         ),
         const SizedBox(height: 16),
-        buildTextField(
+        CustomTextField(
           controller: phoneController,
           label: 'Phone Number',
           hint: 'Enter your phone number',
-          icon: Icons.phone_outlined,
+          prefixIcon: Icons.phone_outlined,
           keyboardType: TextInputType.phone,
-          validator: validatePhone,
+          validator: Helpers.validatePhone,
         ),
         const SizedBox(height: 16),
-        buildPasswordField(
+        CustomTextField(
           controller: passwordController,
           label: 'Password',
           hint: 'Enter your password',
-          isVisible: isPasswordVisible,
-          onToggleVisibility: () {
-            setState(() {
-              isPasswordVisible = !isPasswordVisible;
-            });
-          },
-          validator: validatePassword,
+          obscureText: !isPasswordVisible,
+          prefixIcon: Icons.lock_outlined,
+          suffixIcon: IconButton(
+            icon: Icon(
+              isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            onPressed: () {
+              setState(() {
+                isPasswordVisible = !isPasswordVisible;
+              });
+            },
+          ),
+          validator: Helpers.validatePassword,
         ),
         const SizedBox(height: 16),
-        buildPasswordField(
+        CustomTextField(
           controller: confirmPasswordController,
           label: 'Confirm Password',
           hint: 'Re-enter your password',
-          isVisible: isConfirmPasswordVisible,
-          onToggleVisibility: () {
-            setState(() {
-              isConfirmPasswordVisible = !isConfirmPasswordVisible;
-            });
+          obscureText: !isConfirmPasswordVisible,
+          prefixIcon: Icons.lock_outlined,
+          suffixIcon: IconButton(
+            icon: Icon(
+              isConfirmPasswordVisible
+                  ? Icons.visibility
+                  : Icons.visibility_off,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            onPressed: () {
+              setState(() {
+                isConfirmPasswordVisible = !isConfirmPasswordVisible;
+              });
+            },
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please confirm your password';
+            }
+            if (value != passwordController.text) {
+              return 'Passwords do not match';
+            }
+            return null;
           },
-          validator: validateConfirmPassword,
         ),
       ],
     );
@@ -297,24 +323,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Widget buildSignUpButton() {
-    return SizedBox(
-      height: 56,
-      child: ElevatedButton(
-        onPressed: handleSignUp,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: kBrandGreen,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 2,
-        ),
-        child: const Text(
-          'Create Account',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
+    return CustomButton(text: 'Create Account', onPressed: handleSignUp);
   }
 
   Widget buildLoginLink() {
@@ -340,65 +349,6 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       ],
     );
-  }
-
-  // Validation Methods
-  String? validateName(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Please enter your full name';
-    }
-    if (value.trim().length < 2) {
-      return 'Name must be at least 2 characters';
-    }
-    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
-      return 'Name can only contain letters and spaces';
-    }
-    return null;
-  }
-
-  String? validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Please enter your email address';
-    }
-    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-    if (!emailRegex.hasMatch(value.trim())) {
-      return 'Please enter a valid email address';
-    }
-    return null;
-  }
-
-  String? validatePhone(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Please enter your phone number';
-    }
-    final phoneRegex = RegExp(r'^\+?[\d\s\-\(\)]{10,}$');
-    if (!phoneRegex.hasMatch(value.trim())) {
-      return 'Please enter a valid phone number';
-    }
-    return null;
-  }
-
-  String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a password';
-    }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
-      return 'Password must contain uppercase, lowercase, and number';
-    }
-    return null;
-  }
-
-  String? validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
-    }
-    if (value != passwordController.text) {
-      return 'Passwords do not match';
-    }
-    return null;
   }
 
   void handleSignUp() {

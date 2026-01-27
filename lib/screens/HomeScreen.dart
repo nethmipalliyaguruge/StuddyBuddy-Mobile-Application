@@ -5,8 +5,7 @@ import 'package:studybuddy/screens/detail_page.dart';
 import 'package:studybuddy/screens/ExplorePage.dart';
 import 'package:studybuddy/screens/NotesPage.dart';
 import 'package:studybuddy/screens/ProfilePage.dart';
-
-const kBrandGreen = Color(0xFF006644);
+import 'package:studybuddy/utils/constants.dart';
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});

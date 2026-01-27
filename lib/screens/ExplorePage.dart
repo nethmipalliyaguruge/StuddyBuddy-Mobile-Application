@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:studybuddy/screens/CartPage.dart';
 import 'package:studybuddy/screens/detail_page.dart';
-
-const kBrandGreen = Color(0xFF006644);
+import 'package:studybuddy/utils/constants.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});

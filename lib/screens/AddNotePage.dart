@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-const kBrandGreen = Color(0xFF006644);
+import 'package:studybuddy/utils/constants.dart';
 
 class AddNotePage extends StatefulWidget {
   final String? existingTitle;

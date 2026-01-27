@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:studybuddy/screens/AddNotePage.dart';
-
-const kBrandGreen = Color(0xFF006644);
+import 'package:studybuddy/utils/constants.dart';
 
 class NotesPage extends StatefulWidget {
   const NotesPage({super.key});

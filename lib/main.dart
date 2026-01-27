@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:studybuddy/screens/LoginPage.dart';
+import 'package:studybuddy/utils/constants.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const StudyBuddyApp());
 }
-
-const kBrandGreen = Color(0xFF006644);
 
 /// Theme Manager for Dark/Light mode toggle
 class ThemeManager extends ChangeNotifier with WidgetsBindingObserver {

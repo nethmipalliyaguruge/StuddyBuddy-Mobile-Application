@@ -4,8 +4,7 @@ import 'package:studybuddy/screens/MyOrdersPage.dart';
 import 'package:studybuddy/screens/PersonalDetailsScreen.dart';
 import 'package:studybuddy/screens/CartPage.dart';
 import '../main.dart';
-
-const kBrandGreen = Color(0xFF006644);
+import 'package:studybuddy/utils/constants.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

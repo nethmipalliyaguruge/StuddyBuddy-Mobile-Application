@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:studybuddy/screens/HomeScreen.dart';
 import 'package:studybuddy/screens/SignUpPage.dart';
-
-const kBrandGreen = Color(0xFF006644);
+import 'package:studybuddy/utils/constants.dart';
+import 'package:studybuddy/widgets/custom_button.dart';
+import 'package:studybuddy/widgets/custom_textfield.dart';
 
 // Simple user storage class
 class UserStorage {
@@ -137,8 +138,10 @@ class _LoginpageState extends State<Loginpage> {
   }
 
   Widget buildEmailField() {
-    return TextFormField(
+    return CustomTextField(
       controller: emailController,
+      label: 'Email',
+      prefixIcon: Icons.email_outlined,
       keyboardType: TextInputType.emailAddress,
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -149,30 +152,26 @@ class _LoginpageState extends State<Loginpage> {
         }
         return null;
       },
-      decoration: InputDecoration(
-        labelText: 'Email',
-        labelStyle: TextStyle(
-          color: Theme.of(context).textTheme.bodyMedium?.color,
-        ),
-        prefixIcon: const Icon(Icons.email_outlined, color: kBrandGreen),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).dividerColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: kBrandGreen, width: 2),
-        ),
-        filled: true,
-        fillColor: Theme.of(context).cardColor,
-      ),
     );
   }
 
   Widget buildPasswordField() {
-    return TextFormField(
+    return CustomTextField(
       controller: passwordController,
+      label: 'Password',
+      prefixIcon: Icons.lock_outlined,
       obscureText: !isPasswordVisible,
+      suffixIcon: IconButton(
+        icon: Icon(
+          isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+          color: Theme.of(context).iconTheme.color,
+        ),
+        onPressed: () {
+          setState(() {
+            isPasswordVisible = !isPasswordVisible;
+          });
+        },
+      ),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter your password';
@@ -182,56 +181,11 @@ class _LoginpageState extends State<Loginpage> {
         }
         return null;
       },
-      decoration: InputDecoration(
-        labelText: 'Password',
-        labelStyle: TextStyle(
-          color: Theme.of(context).textTheme.bodyMedium?.color,
-        ),
-        prefixIcon: const Icon(Icons.lock_outlined, color: kBrandGreen),
-        suffixIcon: IconButton(
-          icon: Icon(
-            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-            color: Theme.of(context).iconTheme.color,
-          ),
-          onPressed: () {
-            setState(() {
-              isPasswordVisible = !isPasswordVisible;
-            });
-          },
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).dividerColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: kBrandGreen, width: 2),
-        ),
-        filled: true,
-        fillColor: Theme.of(context).cardColor,
-      ),
     );
   }
 
   Widget buildLoginButton() {
-    return SizedBox(
-      height: 56,
-      child: ElevatedButton(
-        onPressed: handleLogin,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: kBrandGreen,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 2,
-        ),
-        child: const Text(
-          'Log In',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
+    return CustomButton(text: 'Log In', onPressed: handleLogin);
   }
 
   Widget buildForgotPassword() {
