@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "level_id": 1,
+    "name": "Introduction to Programming",
+    "code": "CS101",
+    "description": "Basic programming concepts using Python",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "level_id": 1,
+    "name": "Database Systems",
+    "code": "CS102",
+    "description": "Introduction to relational databases and SQL",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "level_id": 2,
+    "name": "Mobile Application Development",
+    "code": "CS201",
+    "description": "Building mobile apps with Flutter",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "level_id": 2,
+    "name": "Web Development",
+    "code": "CS202",
+    "description": "Full-stack web development",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "level_id": 4,
+    "name": "Business Management",
+    "code": "BM101",
+    "description": "Introduction to business management principles",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "level_id": 6,
+    "name": "Contract Law",
+    "code": "LAW101",
+    "description": "Introduction to contract law",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  }
+]

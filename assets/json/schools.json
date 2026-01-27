@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "School of Computing",
+    "description": "Computer Science, Software Engineering, and IT programs",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "name": "School of Business",
+    "description": "Business Administration, Marketing, and Finance programs",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "name": "School of Law",
+    "description": "Legal studies and Law programs",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  }
+]

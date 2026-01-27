@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "school_id": 1,
+    "name": "Level 4",
+    "description": "Foundation year",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "school_id": 1,
+    "name": "Level 5",
+    "description": "Second year",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "school_id": 1,
+    "name": "Level 6",
+    "description": "Final year",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "school_id": 2,
+    "name": "Level 4",
+    "description": "Foundation year",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "school_id": 2,
+    "name": "Level 5",
+    "description": "Second year",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "school_id": 3,
+    "name": "Level 4",
+    "description": "Foundation year",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  }
+]
