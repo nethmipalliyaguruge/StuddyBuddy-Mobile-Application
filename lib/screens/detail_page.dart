@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:studybuddy/providers/cart_provider.dart';
+import 'package:studybuddy/models/material.dart';
 import 'package:studybuddy/screens/cart_page.dart';
+import 'package:studybuddy/utils/constants.dart';
 
 class NoteDetailPage extends StatefulWidget {
   final Map<String, dynamic>? product;
@@ -14,9 +18,8 @@ class NoteDetailPage extends StatefulWidget {
 class _NoteDetailPageState extends State<NoteDetailPage> {
   bool _descExpanded = false;
 
-  final Color primary = const Color(0xFF006644);
-
   // Get product-specific data with fallbacks
+  int get productId => widget.product?['id'] ?? 0;
   String get productTitle =>
       widget.product?['title'] ?? 'Database & Data Structures - Normalization';
   String get productCategory => widget.category ?? 'Computing';
@@ -25,7 +28,10 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
   double get price {
     if (widget.product?['price'] != null) {
-      String priceStr = widget.product!['price']
+      var priceValue = widget.product!['price'];
+      if (priceValue is double) return priceValue;
+      if (priceValue is int) return priceValue.toDouble();
+      String priceStr = priceValue
           .toString()
           .replaceAll('LKR ', '')
           .replaceAll(',', '');
@@ -243,8 +249,11 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'LKR 850.00',
-                style: TextStyle(color: primary, fontWeight: FontWeight.bold),
+                'LKR ${price.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  color: kBrandGreen,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -367,7 +376,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       child: Column(
         children: [
           ListTile(
-            leading: Icon(Icons.menu_book_rounded, color: primary),
+            leading: const Icon(Icons.menu_book_rounded, color: kBrandGreen),
             title: Text(
               'Module',
               style: Theme.of(context).textTheme.bodyMedium,
@@ -380,7 +389,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.school_rounded, color: primary),
+            leading: const Icon(Icons.school_rounded, color: kBrandGreen),
             title: Text('Level', style: Theme.of(context).textTheme.bodyMedium),
             trailing: Text(
               productLevel,
@@ -390,7 +399,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.apartment_rounded, color: primary),
+            leading: const Icon(Icons.apartment_rounded, color: kBrandGreen),
             title: Text(
               'School',
               style: Theme.of(context).textTheme.bodyMedium,
@@ -414,8 +423,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       child: ListTile(
         leading: CircleAvatar(
           radius: 24,
-          backgroundColor: primary.withValues(alpha: 0.1),
-          child: Icon(Icons.person, color: primary),
+          backgroundColor: kBrandGreen.withValues(alpha: 0.1),
+          child: const Icon(Icons.person, color: kBrandGreen),
         ),
         title: Text(
           'John Doe',
@@ -432,9 +441,6 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   Widget buildPurchaseCard(double total, double fee) {
-    final isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
-
     return Card(
       color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -449,23 +455,14 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
               ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            isLandscape
-                ? Column(
-                    children: [
-                      _priceRow('Material Price', price),
-                      _priceRow('Platform Fee (5%)', fee),
-                      const Divider(),
-                      _priceRow('Total', total, bold: true),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      _priceRow('Material Price', price),
-                      _priceRow('Platform Fee (5%)', fee),
-                      const Divider(),
-                      _priceRow('Total', total, bold: true),
-                    ],
-                  ),
+            Column(
+              children: [
+                _priceRow('Material Price', price),
+                _priceRow('Platform Fee (5%)', fee),
+                const Divider(),
+                _priceRow('Total', total, bold: true),
+              ],
+            ),
           ],
         ),
       ),
@@ -473,6 +470,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   Widget buildBottomBar(double total) {
+    final cartProvider = context.watch<CartProvider>();
+    final isInCart = productId > 0 && cartProvider.isInCart(productId);
+
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -495,32 +495,30 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
             FilledButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text(
+                  const SnackBar(
+                    content: Text(
                       'Purchase feature coming soon!',
                       style: TextStyle(color: Colors.white),
                     ),
-                    backgroundColor: primary,
+                    backgroundColor: kBrandGreen,
                   ),
                 );
               },
               style: FilledButton.styleFrom(
-                backgroundColor: primary,
+                backgroundColor: kBrandGreen,
                 foregroundColor: Colors.white,
               ),
               child: const Text('Purchase Now'),
             ),
             const SizedBox(width: 8),
             OutlinedButton.icon(
-              onPressed: () {
-                _addToCart();
-              },
+              onPressed: isInCart ? null : _addToCart,
               style: OutlinedButton.styleFrom(
-                foregroundColor: primary,
-                side: BorderSide(color: primary),
+                foregroundColor: isInCart ? Colors.grey : kBrandGreen,
+                side: BorderSide(color: isInCart ? Colors.grey : kBrandGreen),
               ),
-              icon: const Icon(Icons.add_shopping_cart),
-              label: const Text('Cart'),
+              icon: Icon(isInCart ? Icons.check : Icons.add_shopping_cart),
+              label: Text(isInCart ? 'In Cart' : 'Cart'),
             ),
           ],
         ),
@@ -548,16 +546,20 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _addToCart() {
-    final product = {
-      'title': productTitle,
-      'description': productDetails['description'],
-      'price': 'LKR ${price.toStringAsFixed(2)}',
-      'rating': productRating,
-      'level': productLevel,
-    };
+    // Create a StudyMaterial from the product data
+    final material = StudyMaterial(
+      id: productId,
+      userId: 0,
+      moduleId: 0,
+      title: productTitle,
+      description: productDetails['description'],
+      price: price,
+      isActive: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
 
-    // Add to cart using CartManager
-    CartManager().addItem(product, productCategory);
+    context.read<CartProvider>().addItem(material);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -565,7 +567,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
           'Added to cart successfully!',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: primary,
+        backgroundColor: kBrandGreen,
         duration: const Duration(seconds: 2),
         action: SnackBarAction(
           label: 'View Cart',

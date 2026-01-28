@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:studybuddy/providers/notes_provider.dart';
+import 'package:studybuddy/providers/materials_provider.dart';
+import 'package:studybuddy/models/note.dart';
+import 'package:studybuddy/models/school.dart';
+import 'package:studybuddy/models/level.dart';
+import 'package:studybuddy/models/module.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class AddNotePage extends StatefulWidget {
-  final String? existingTitle;
-  final String? existingPrice;
+  final Note? existingNote;
   final bool isEditing;
 
   const AddNotePage({
     super.key,
-    this.existingTitle,
-    this.existingPrice,
+    this.existingNote,
     this.isEditing = false,
   });
 
@@ -18,21 +23,29 @@ class AddNotePage extends StatefulWidget {
 }
 
 class _AddNotePageState extends State<AddNotePage> {
-  String? selectedSchool;
-  String? selectedLevel;
-  String? selectedModule;
+  School? selectedSchool;
+  Level? selectedLevel;
+  Module? selectedModule;
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
+
+    // Fetch materials data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<MaterialsProvider>().fetchSchools();
+    });
+
     // Pre-fill fields if editing
-    if (widget.isEditing) {
-      titleController.text = widget.existingTitle ?? '';
-      priceController.text = widget.existingPrice?.replaceAll('LKR ', '') ?? '';
+    if (widget.isEditing && widget.existingNote != null) {
+      titleController.text = widget.existingNote!.title;
+      priceController.text = widget.existingNote!.price.toStringAsFixed(2);
+      descriptionController.text = widget.existingNote!.description ?? '';
     }
   }
 
@@ -53,76 +66,221 @@ class _AddNotePageState extends State<AddNotePage> {
         backgroundColor: kBrandGreen,
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            buildTextField(
-              label: 'Note Title',
-              hint: 'Enter note title',
-              controller: titleController,
-            ),
-            const SizedBox(height: 16),
-            buildTextField(
-              label: 'Price (LKR)',
-              hint: 'Enter price in LKR',
-              keyboardType: TextInputType.number,
-              controller: priceController,
-            ),
-            const SizedBox(height: 20),
-            buildTextField(
-              label: 'Note Description',
-              hint: 'Enter a brief description',
-              maxLines: 8,
-              controller: descriptionController,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Category Selection',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: kBrandGreen,
+      body: Consumer<MaterialsProvider>(
+        builder: (context, materialsProvider, child) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  buildTextField(
+                    label: 'Note Title',
+                    hint: 'Enter note title',
+                    controller: titleController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a title';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  buildTextField(
+                    label: 'Price (LKR)',
+                    hint: 'Enter price in LKR',
+                    keyboardType: TextInputType.number,
+                    controller: priceController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a price';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Please enter a valid price';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  buildTextField(
+                    label: 'Note Description',
+                    hint: 'Enter a brief description',
+                    maxLines: 8,
+                    controller: descriptionController,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Category Selection',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: kBrandGreen,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  buildSchoolDropdown(materialsProvider),
+                  const SizedBox(height: 12),
+                  buildLevelDropdown(materialsProvider),
+                  const SizedBox(height: 12),
+                  buildModuleDropdown(materialsProvider),
+                  const SizedBox(height: 20),
+                  buildFileUploadSection(),
+                  const SizedBox(height: 20),
+                  buildPreviewImagesSection(),
+                  const SizedBox(height: 30),
+                  buildActionButtons(),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            buildDropdownField(
-              label: 'School',
-              value: selectedSchool,
-              items: ['Computing', 'Business', 'Law'],
-              onChanged: (value) => setState(() => selectedSchool = value),
-            ),
-            const SizedBox(height: 12),
-            buildDropdownField(
-              label: 'Level',
-              value: selectedLevel,
-              items: ['Level 4', 'Level 5', 'Level 6'],
-              onChanged: (value) => setState(() => selectedLevel = value),
-            ),
-            const SizedBox(height: 12),
-            buildDropdownField(
-              label: 'Module',
-              value: selectedModule,
-              items: [
-                'Commercial Computing',
-                'Mobile App Development',
-                'Server Side Programming',
-                'Database and Data Structure',
-                'Web Development',
-                'Software Engineering',
-              ],
-              onChanged: (value) => setState(() => selectedModule = value),
-            ),
-            const SizedBox(height: 20),
-            buildFileUploadSection(),
-            const SizedBox(height: 20),
-            buildPreviewImagesSection(),
-            const SizedBox(height: 30),
-            buildActionButtons(),
-          ],
-        ),
+          );
+        },
       ),
+    );
+  }
+
+  Widget buildSchoolDropdown(MaterialsProvider materialsProvider) {
+    final schools = materialsProvider.schools;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'School',
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<School>(
+          value: selectedSchool,
+          decoration: InputDecoration(
+            hintText: 'Select School',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: kBrandGreen, width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+          ),
+          items: schools.map((school) {
+            return DropdownMenuItem(value: school, child: Text(school.name));
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedSchool = value;
+              selectedLevel = null;
+              selectedModule = null;
+            });
+            if (value != null) {
+              materialsProvider.fetchLevels(schoolId: value.id);
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget buildLevelDropdown(MaterialsProvider materialsProvider) {
+    final levels = materialsProvider.levels;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Level',
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<Level>(
+          value: selectedLevel,
+          decoration: InputDecoration(
+            hintText: selectedSchool == null
+                ? 'Select a school first'
+                : 'Select Level',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: kBrandGreen, width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+          ),
+          items: levels.map((level) {
+            return DropdownMenuItem(value: level, child: Text(level.name));
+          }).toList(),
+          onChanged: selectedSchool == null
+              ? null
+              : (value) {
+                  setState(() {
+                    selectedLevel = value;
+                    selectedModule = null;
+                  });
+                  if (value != null) {
+                    materialsProvider.fetchModules(levelId: value.id);
+                  }
+                },
+        ),
+      ],
+    );
+  }
+
+  Widget buildModuleDropdown(MaterialsProvider materialsProvider) {
+    final modules = materialsProvider.modules;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Module',
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<Module>(
+          value: selectedModule,
+          decoration: InputDecoration(
+            hintText:
+                selectedLevel == null ? 'Select a level first' : 'Select Module',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: kBrandGreen, width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+          ),
+          items: modules.map((module) {
+            return DropdownMenuItem(value: module, child: Text(module.name));
+          }).toList(),
+          onChanged: selectedLevel == null
+              ? null
+              : (value) {
+                  setState(() {
+                    selectedModule = value;
+                  });
+                },
+        ),
+      ],
     );
   }
 
@@ -132,6 +290,7 @@ class _AddNotePageState extends State<AddNotePage> {
     int maxLines = 1,
     TextInputType? keyboardType,
     TextEditingController? controller,
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,10 +302,11 @@ class _AddNotePageState extends State<AddNotePage> {
           ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
-        TextField(
+        TextFormField(
           controller: controller,
           maxLines: maxLines,
           keyboardType: keyboardType,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hint,
             border: OutlineInputBorder(
@@ -162,48 +322,6 @@ class _AddNotePageState extends State<AddNotePage> {
               vertical: 12,
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildDropdownField({
-    required String label,
-    required String? value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: value,
-          decoration: InputDecoration(
-            hintText: 'Select $label',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: kBrandGreen, width: 2),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-          ),
-          items: items.map((item) {
-            return DropdownMenuItem(value: item, child: Text(item));
-          }).toList(),
-          onChanged: onChanged,
         ),
       ],
     );
@@ -343,62 +461,118 @@ class _AddNotePageState extends State<AddNotePage> {
   }
 
   Widget buildActionButtons() {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: kBrandGreen,
-              side: const BorderSide(color: kBrandGreen),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+    return Consumer<NotesProvider>(
+      builder: (context, notesProvider, child) {
+        return Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: notesProvider.isLoading
+                    ? null
+                    : () {
+                        Navigator.pop(context);
+                      },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: kBrandGreen,
+                  side: const BorderSide(color: kBrandGreen),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          flex: 2,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              saveNote();
-            },
-            icon: Icon(widget.isEditing ? Icons.update : Icons.save),
-            label: Text(widget.isEditing ? 'Update Note' : 'Save Note'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kBrandGreen,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+            const SizedBox(width: 16),
+            Expanded(
+              flex: 2,
+              child: ElevatedButton.icon(
+                onPressed: notesProvider.isLoading ? null : saveNote,
+                icon: notesProvider.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Icon(widget.isEditing ? Icons.update : Icons.save),
+                label: Text(widget.isEditing ? 'Update Note' : 'Save Note'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kBrandGreen,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
-  void saveNote() {
-    // Validate fields
-    String message = widget.isEditing
-        ? 'Note updated successfully!'
-        : 'Note saved successfully!';
+  Future<void> saveNote() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.white)),
-        backgroundColor: kBrandGreen,
-      ),
-    );
-    Navigator.pop(context);
+    final notesProvider = context.read<NotesProvider>();
+
+    final title = titleController.text.trim();
+    final price = double.tryParse(priceController.text.trim()) ?? 0;
+    final description = descriptionController.text.trim();
+    final moduleId = selectedModule?.id ?? 0;
+
+    bool success;
+    if (widget.isEditing && widget.existingNote != null) {
+      success = await notesProvider.updateNote(
+        id: widget.existingNote!.id,
+        title: title,
+        description: description,
+        price: price,
+        moduleId: moduleId,
+      );
+    } else {
+      success = await notesProvider.createNote(
+        title: title,
+        description: description,
+        price: price,
+        moduleId: moduleId,
+      );
+    }
+
+    if (!mounted) return;
+
+    if (success) {
+      String message = widget.isEditing
+          ? 'Note updated successfully!'
+          : 'Note saved successfully!';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message, style: const TextStyle(color: Colors.white)),
+          backgroundColor: kBrandGreen,
+        ),
+      );
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            notesProvider.error ?? 'Failed to save note. Please try again.',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      notesProvider.clearError();
+    }
   }
 }

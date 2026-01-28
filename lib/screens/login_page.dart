@@ -1,25 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:studybuddy/providers/auth_provider.dart';
 import 'package:studybuddy/screens/home_screen.dart';
 import 'package:studybuddy/screens/sign_up_page.dart';
 import 'package:studybuddy/utils/constants.dart';
 import 'package:studybuddy/widgets/custom_button.dart';
 import 'package:studybuddy/widgets/custom_textfield.dart';
-
-// Simple user storage class
-class UserStorage {
-  static final Map<String, String> _users = {
-    'john@gmail.com': 'bbb12345',
-    'student@studybuddy.com': 'password123',
-    'admin@studybuddy.com': 'admin123',
-    'demo@example.com': '123456',
-  };
-
-  static void addUser(String email, String password) {
-    _users[email] = password;
-  }
-
-  static Map<String, String> get users => _users;
-}
 
 class Loginpage extends StatefulWidget {
   final String? prefilledEmail;
@@ -47,10 +33,6 @@ class _LoginpageState extends State<Loginpage> {
     if (widget.prefilledPassword != null) {
       passwordController.text = widget.prefilledPassword!;
     }
-  }
-
-  bool validateLogin(String email, String password) {
-    return UserStorage.users[email] == password;
   }
 
   @override
@@ -185,7 +167,15 @@ class _LoginpageState extends State<Loginpage> {
   }
 
   Widget buildLoginButton() {
-    return CustomButton(text: 'Log In', onPressed: handleLogin);
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        return authProvider.isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: kBrandGreen),
+              )
+            : CustomButton(text: 'Log In', onPressed: handleLogin);
+      },
+    );
   }
 
   Widget buildForgotPassword() {
@@ -257,15 +247,20 @@ class _LoginpageState extends State<Loginpage> {
     );
   }
 
-  void handleLogin() {
+  Future<void> handleLogin() async {
     if (formKey.currentState!.validate()) {
       String email = emailController.text.trim();
       String password = passwordController.text.trim();
 
-      if (validateLogin(email, password)) {
+      final authProvider = context.read<AuthProvider>();
+      final success = await authProvider.login(email, password);
+
+      if (!mounted) return;
+
+      if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
+          const SnackBar(
+            content: Text(
               'Login successful! Welcome to StudyBuddy!',
               style: TextStyle(color: Colors.white),
             ),
@@ -279,14 +274,15 @@ class _LoginpageState extends State<Loginpage> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Invalid email or password. Please try again.',
-              style: TextStyle(color: Colors.white),
+              authProvider.error ?? 'Invalid email or password. Please try again.',
+              style: const TextStyle(color: Colors.white),
             ),
             backgroundColor: Colors.red,
           ),
         );
+        authProvider.clearError();
       }
     }
   }

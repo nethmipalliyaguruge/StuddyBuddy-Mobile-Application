@@ -1,65 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:studybuddy/screens/login_page.dart';
 import 'package:studybuddy/utils/constants.dart';
 
-void main() {
+// Services
+import 'package:studybuddy/services/storage_service.dart';
+import 'package:studybuddy/services/api_service.dart';
+import 'package:studybuddy/services/connectivity_service.dart';
+
+// Providers
+import 'package:studybuddy/providers/auth_provider.dart';
+import 'package:studybuddy/providers/theme_provider.dart';
+import 'package:studybuddy/providers/cart_provider.dart';
+import 'package:studybuddy/providers/notes_provider.dart';
+import 'package:studybuddy/providers/materials_provider.dart';
+import 'package:studybuddy/providers/purchases_provider.dart';
+import 'package:studybuddy/providers/connectivity_provider.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const StudyBuddyApp());
-}
 
-/// Theme Manager for Dark/Light mode toggle
-class ThemeManager extends ChangeNotifier with WidgetsBindingObserver {
-  static final ThemeManager instance = ThemeManager.internal();
-  factory ThemeManager() => instance;
+  // Initialize services
+  final storageService = StorageService();
+  await storageService.init();
 
-  ThemeManager.internal() {
-    WidgetsBinding.instance.addObserver(this);
-  }
+  final apiService = ApiService(storageService);
+  final connectivityService = ConnectivityService();
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangePlatformBrightness() {
-    // Always notify listeners when platform brightness changes
-    notifyListeners();
-    super.didChangePlatformBrightness();
-  }
-
-  ThemeMode _themeMode = ThemeMode.system;
-  ThemeMode get themeMode => _themeMode;
-
-  bool get isDarkMode {
-    if (_themeMode == ThemeMode.system) {
-      // Use platformDispatcher to get the system brightness directly
-      // This works even if context is not available yet
-      final brightness =
-          WidgetsBinding.instance.platformDispatcher.platformBrightness;
-      return brightness == Brightness.dark;
-    }
-    return _themeMode == ThemeMode.dark;
-  }
-
-  void toggleTheme() {
-    // If we are currently following system, clicking toggle locks it to the OPPOSITE of current system state.
-    // Otherwise, it just swaps.
-    if (_themeMode == ThemeMode.system) {
-      _themeMode = isDarkMode ? ThemeMode.light : ThemeMode.dark;
-    } else {
-      _themeMode = _themeMode == ThemeMode.light
-          ? ThemeMode.dark
-          : ThemeMode.light;
-    }
-    notifyListeners();
-  }
-
-  void setTheme(bool isDark) {
-    _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
-    notifyListeners();
-  }
+  runApp(StudyBuddyApp(
+    storageService: storageService,
+    apiService: apiService,
+    connectivityService: connectivityService,
+  ));
 }
 
 /// Build a Material 3 Theme with Roboto + accessible colors
@@ -183,42 +155,72 @@ ThemeData buildTheme(Brightness brightness) {
   );
 }
 
-class StudyBuddyApp extends StatefulWidget {
-  const StudyBuddyApp({super.key});
+class StudyBuddyApp extends StatelessWidget {
+  final StorageService storageService;
+  final ApiService apiService;
+  final ConnectivityService connectivityService;
 
-  @override
-  State<StudyBuddyApp> createState() => _StudyBuddyAppState();
-}
-
-class _StudyBuddyAppState extends State<StudyBuddyApp> {
-  final ThemeManager themeManager = ThemeManager();
-
-  @override
-  void initState() {
-    super.initState();
-    themeManager.addListener(onThemeChanged);
-  }
-
-  @override
-  void dispose() {
-    themeManager.removeListener(onThemeChanged);
-    super.dispose();
-  }
-
-  void onThemeChanged() => setState(() {});
+  const StudyBuddyApp({
+    super.key,
+    required this.storageService,
+    required this.apiService,
+    required this.connectivityService,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'StudyBuddy',
-      debugShowCheckedModeBanner: false,
+    return MultiProvider(
+      providers: [
+        // Connectivity Provider
+        ChangeNotifierProvider(
+          create: (_) => ConnectivityProvider(connectivityService)..initialize(),
+        ),
 
-      // Light/Dark themes with Roboto + accessible contrast
-      theme: buildTheme(Brightness.light),
-      darkTheme: buildTheme(Brightness.dark),
-      themeMode: themeManager.themeMode,
+        // Theme Provider
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(storageService)..initialize(),
+        ),
 
-      home: const Loginpage(),
+        // Auth Provider
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(apiService, storageService)..initialize(),
+        ),
+
+        // Cart Provider
+        ChangeNotifierProvider(
+          create: (_) => CartProvider(apiService, storageService)..loadCart(),
+        ),
+
+        // Notes Provider
+        ChangeNotifierProvider(
+          create: (_) => NotesProvider(apiService, storageService),
+        ),
+
+        // Materials Provider
+        ChangeNotifierProvider(
+          create: (_) => MaterialsProvider(apiService, storageService),
+        ),
+
+        // Purchases Provider
+        ChangeNotifierProvider(
+          create: (_) => PurchasesProvider(apiService, storageService),
+        ),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'StudyBuddy',
+            debugShowCheckedModeBanner: false,
+
+            // Light/Dark themes with Roboto + accessible contrast
+            theme: buildTheme(Brightness.light),
+            darkTheme: buildTheme(Brightness.dark),
+            themeMode: themeProvider.themeMode,
+
+            home: const Loginpage(),
+          );
+        },
+      ),
     );
   }
 }

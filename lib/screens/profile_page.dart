@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:studybuddy/providers/auth_provider.dart';
+import 'package:studybuddy/providers/theme_provider.dart';
+import 'package:studybuddy/providers/notes_provider.dart';
+import 'package:studybuddy/providers/purchases_provider.dart';
 import 'package:studybuddy/screens/login_page.dart';
 import 'package:studybuddy/screens/my_orders_page.dart';
 import 'package:studybuddy/screens/personal_details_screen.dart';
 import 'package:studybuddy/screens/cart_page.dart';
-import '../main.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -14,7 +18,15 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final ThemeManager themeManager = ThemeManager();
+  @override
+  void initState() {
+    super.initState();
+    // Fetch data when page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotesProvider>().fetchNotes();
+      context.read<PurchasesProvider>().fetchPurchases();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CartPage()),
+                  MaterialPageRoute(builder: (context) => const CartPage()),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -48,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 minimumSize: const Size(60, 40),
                 padding: const EdgeInsets.all(8),
               ),
-              child: Icon(Icons.shopping_cart),
+              child: const Icon(Icons.shopping_cart),
             ),
           ],
         ),
@@ -73,69 +85,90 @@ class _ProfilePageState extends State<ProfilePage> {
                 bottom: Radius.circular(20),
               ),
             ),
-            child: Column(
-              children: [
-                // Profile Avatar
-                Stack(
+            child: Consumer2<AuthProvider, PurchasesProvider>(
+              builder: (context, authProvider, purchasesProvider, child) {
+                final user = authProvider.user;
+                return Column(
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: kBrandGreen.withValues(alpha: 0.1),
-                      child: const Icon(
-                        Icons.account_circle,
-                        size: 80,
+                    // Profile Avatar
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: kBrandGreen.withValues(alpha: 0.1),
+                          child: const Icon(
+                            Icons.account_circle,
+                            size: 80,
+                            color: kBrandGreen,
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: kBrandGreen,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // User Name
+                    Text(
+                      user?.name ?? "Guest User",
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
                         color: kBrandGreen,
                       ),
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: kBrandGreen,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
+                    const SizedBox(height: 4),
+
+                    // User Email
+                    Text(
+                      user?.email ?? "guest@studybuddy.com",
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Stats Row
+                    Consumer<NotesProvider>(
+                      builder: (context, notesProvider, child) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            buildStatItem(
+                              context,
+                              "Notes",
+                              notesProvider.noteCount.toString(),
+                            ),
+                            buildStatItem(
+                              context,
+                              "Orders",
+                              purchasesProvider.purchaseCount.toString(),
+                            ),
+                            buildStatItem(
+                              context,
+                              "Spent",
+                              "LKR ${purchasesProvider.totalSpent.toStringAsFixed(0)}",
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ],
-                ),
-                const SizedBox(height: 16),
-
-                // User Name
-                Text(
-                  "John Doe",
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: kBrandGreen,
-                  ),
-                ),
-                const SizedBox(height: 4),
-
-                // User Email
-                Text(
-                  "john@studybuddy.com",
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 16),
-
-                // Stats Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    buildStatItem(context, "Notes", "12"),
-                    buildStatItem(context, "Orders", "5"),
-                    buildStatItem(context, "Spent", "LKR 4,250"),
-                  ],
-                ),
-              ],
+                );
+              },
             ),
           ),
 
@@ -198,64 +231,66 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 12),
 
                 // Dark Mode Toggle
-                Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 8,
-                    ),
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
+                Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, child) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
-                        color: kBrandGreen.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        child: Icon(
-                          themeManager.isDarkMode
-                              ? Icons.dark_mode
-                              : Icons.light_mode,
-                          key: ValueKey(themeManager.isDarkMode),
-                          color: kBrandGreen,
-                          size: 24,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: kBrandGreen.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            child: Icon(
+                              themeProvider.isDarkMode
+                                  ? Icons.dark_mode
+                                  : Icons.light_mode,
+                              key: ValueKey(themeProvider.isDarkMode),
+                              color: kBrandGreen,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                        title: Text(
+                          'Dark Mode',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          themeProvider.isDarkMode ? 'Enabled' : 'Disabled',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                        ),
+                        trailing: Switch.adaptive(
+                          value: themeProvider.isDarkMode,
+                          onChanged: (value) {
+                            themeProvider.toggleTheme();
+                          },
+                          activeColor: kBrandGreen,
                         ),
                       ),
-                    ),
-                    title: Text(
-                      'Dark Mode',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: Text(
-                      themeManager.isDarkMode ? 'Enabled' : 'Disabled',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                    ),
-                    trailing: Switch.adaptive(
-                      value: themeManager.isDarkMode,
-                      onChanged: (value) {
-                        setState(() {
-                          themeManager.toggleTheme();
-                        });
-                      },
-                      activeColor: kBrandGreen,
-                    ),
-                  ),
+                    );
+                  },
                 ),
 
                 ProfileOption(
@@ -381,70 +416,91 @@ class _ProfilePageState extends State<ProfilePage> {
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Column(
-        children: [
-          // Profile Avatar
-          Stack(
+      child: Consumer2<AuthProvider, PurchasesProvider>(
+        builder: (context, authProvider, purchasesProvider, child) {
+          final user = authProvider.user;
+          return Column(
             children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundColor: kBrandGreen.withValues(alpha: 0.1),
-                child: const Icon(
-                  Icons.account_circle,
-                  size: 100,
+              // Profile Avatar
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundColor: kBrandGreen.withValues(alpha: 0.1),
+                    child: const Icon(
+                      Icons.account_circle,
+                      size: 100,
+                      color: kBrandGreen,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: kBrandGreen,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // User Name
+              Text(
+                user?.name ?? "Guest User",
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                   color: kBrandGreen,
                 ),
               ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: kBrandGreen,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
+              const SizedBox(height: 8),
+
+              // User Email
+              Text(
+                user?.email ?? "guest@studybuddy.com",
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 24),
+
+              // Stats in landscape - vertical layout
+              Consumer<NotesProvider>(
+                builder: (context, notesProvider, child) {
+                  return Column(
+                    children: [
+                      _buildLandscapeStatItem(
+                        context,
+                        "Notes",
+                        notesProvider.noteCount.toString(),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLandscapeStatItem(
+                        context,
+                        "Orders",
+                        purchasesProvider.purchaseCount.toString(),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLandscapeStatItem(
+                        context,
+                        "Spent",
+                        "LKR ${purchasesProvider.totalSpent.toStringAsFixed(0)}",
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
-          ),
-          const SizedBox(height: 20),
-
-          // User Name
-          Text(
-            "John Doe",
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: kBrandGreen,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // User Email
-          Text(
-            "john@studybuddy.com",
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 24),
-
-          // Stats in landscape - vertical layout
-          Column(
-            children: [
-              _buildLandscapeStatItem(context, "Notes", "5"),
-              const SizedBox(height: 16),
-              _buildLandscapeStatItem(context, "Orders", "3"),
-              const SizedBox(height: 16),
-              _buildLandscapeStatItem(context, "Spent", "LKR 3,250"),
-            ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -539,64 +595,66 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 16),
 
           // Dark Mode Toggle
-          Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
-              ),
-              leading: Container(
-                padding: const EdgeInsets.all(8),
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
-                  color: kBrandGreen.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    themeManager.isDarkMode
-                        ? Icons.dark_mode
-                        : Icons.light_mode,
-                    key: ValueKey(themeManager.isDarkMode),
-                    color: kBrandGreen,
-                    size: 24,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: kBrandGreen.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: Icon(
+                        themeProvider.isDarkMode
+                            ? Icons.dark_mode
+                            : Icons.light_mode,
+                        key: ValueKey(themeProvider.isDarkMode),
+                        color: kBrandGreen,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    'Dark Mode',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: Text(
+                    themeProvider.isDarkMode ? 'Enabled' : 'Disabled',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                  ),
+                  trailing: Switch.adaptive(
+                    value: themeProvider.isDarkMode,
+                    onChanged: (value) {
+                      themeProvider.toggleTheme();
+                    },
+                    activeColor: kBrandGreen,
                   ),
                 ),
-              ),
-              title: Text(
-                'Dark Mode',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              subtitle: Text(
-                themeManager.isDarkMode ? 'Enabled' : 'Disabled',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-              ),
-              trailing: Switch.adaptive(
-                value: themeManager.isDarkMode,
-                onChanged: (value) {
-                  setState(() {
-                    themeManager.toggleTheme();
-                  });
-                },
-                activeColor: kBrandGreen,
-              ),
-            ),
+              );
+            },
           ),
 
           ProfileOption(
@@ -734,23 +792,26 @@ class _ProfilePageState extends State<ProfilePage> {
   void showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Logout'),
           content: const Text('Are you sure you want to logout?'),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.pushReplacement(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                await context.read<AuthProvider>().logout();
+                if (!mounted) return;
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const Loginpage()),
+                  (route) => false,
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

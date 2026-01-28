@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:studybuddy/providers/notes_provider.dart';
+import 'package:studybuddy/models/note.dart';
 import 'package:studybuddy/screens/add_note_page.dart';
 import 'package:studybuddy/utils/constants.dart';
 
@@ -11,13 +14,22 @@ class NotesPage extends StatefulWidget {
 
 class _NotesPageState extends State<NotesPage> {
   @override
+  void initState() {
+    super.initState();
+    // Fetch notes when page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotesProvider>().fetchNotes();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'My Notes',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -31,71 +43,83 @@ class _NotesPageState extends State<NotesPage> {
         elevation: 0,
         centerTitle: false,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          buildNoteItem(
-            context,
-            'Database and Data Structures - Normalization',
-            'LKR 850.00',
-            0,
-            {
-              'title': 'Database & Data Structures',
-              'price': 'LKR 850.00',
-              'rating': 4.8,
-            },
-          ),
-          buildNoteItem(
-            context,
-            'WDOS - Web Development & Operating Systems Notes',
-            'LKR 800.00',
-            1,
-            {
-              'title': 'Web Development Fundamentals',
-              'price': 'LKR 800.00',
-              'rating': 4.5,
-            },
-          ),
-          buildNoteItem(
-            context,
-            'Server-side Authentication Techniques',
-            'LKR 750.00',
-            2,
-            {
-              'title': 'Authentication & Security',
-              'price': 'LKR 750.00',
-              'rating': 4.7,
-            },
-          ),
-          buildNoteItem(
-            context,
-            'Mobile Application Development',
-            'LKR 350.00',
-            3,
-            {
-              'title': 'Mobile App Development',
-              'price': 'LKR 350.00',
-              'rating': 4.6,
-            },
-          ),
-          buildNoteItem(
-            context,
-            'Software Engineering Principles',
-            'LKR 450.00',
-            4,
-            {
-              'title': 'Software Engineering',
-              'price': 'LKR 450.00',
-              'rating': 4.4,
-            },
-          ),
-        ],
+      body: Consumer<NotesProvider>(
+        builder: (context, notesProvider, child) {
+          if (notesProvider.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(color: kBrandGreen),
+            );
+          }
+
+          if (notesProvider.error != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    notesProvider.error!,
+                    style: TextStyle(color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => notesProvider.fetchNotes(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (notesProvider.notes.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.note_outlined, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No notes yet',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap the + button to add your first note',
+                    style: TextStyle(color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: () => notesProvider.fetchNotes(),
+            color: kBrandGreen,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: notesProvider.notes.length,
+              itemBuilder: (context, index) {
+                final note = notesProvider.notes[index];
+                return buildNoteItem(context, note, index);
+              },
+            ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute<void>(builder: (context) => AddNotePage()));
+        onPressed: () async {
+          final result = await Navigator.of(context).push(
+            MaterialPageRoute<bool>(
+              builder: (context) => const AddNotePage(),
+            ),
+          );
+          if (result == true && mounted) {
+            context.read<NotesProvider>().fetchNotes();
+          }
         },
         backgroundColor: kBrandGreen,
         foregroundColor: Colors.white,
@@ -104,18 +128,12 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  Widget buildNoteItem(
-    BuildContext context,
-    String title,
-    String price,
-    int index,
-    Map<String, dynamic> product,
-  ) {
+  Widget buildNoteItem(BuildContext context, Note note, int index) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12.0),
       child: InkWell(
         onTap: () {
-          _navigateToEditNote(context, title, price, index);
+          _navigateToEditNote(context, note);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -123,7 +141,7 @@ class _NotesPageState extends State<NotesPage> {
           child: Row(
             children: [
               Hero(
-                tag: 'note-icon-$index',
+                tag: 'note-icon-${note.id}',
                 child: const Icon(Icons.note, size: 32, color: kBrandGreen),
               ),
               const SizedBox(width: 16),
@@ -133,11 +151,11 @@ class _NotesPageState extends State<NotesPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Hero(
-                      tag: 'note-title-$index',
+                      tag: 'note-title-${note.id}',
                       child: Material(
                         color: Colors.transparent,
                         child: Text(
-                          title,
+                          note.title,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -147,11 +165,11 @@ class _NotesPageState extends State<NotesPage> {
                     ),
                     const SizedBox(height: 4),
                     Hero(
-                      tag: 'note-price-$index',
+                      tag: 'note-price-${note.id}',
                       child: Material(
                         color: Colors.transparent,
                         child: Text(
-                          price,
+                          'LKR ${note.price.toStringAsFixed(2)}',
                           style: const TextStyle(
                             fontSize: 14,
                             color: kBrandGreen,
@@ -160,13 +178,23 @@ class _NotesPageState extends State<NotesPage> {
                         ),
                       ),
                     ),
+                    if (note.module != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        note.module!.name,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
               IconButton(
                 icon: const Icon(Icons.edit),
                 onPressed: () {
-                  _navigateToEditNote(context, title, price, index);
+                  _navigateToEditNote(context, note);
                 },
                 color: Colors.grey[600],
                 iconSize: 20,
@@ -178,17 +206,11 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  void _navigateToEditNote(
-    BuildContext context,
-    String title,
-    String price,
-    int index,
-  ) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
+  void _navigateToEditNote(BuildContext context, Note note) async {
+    final result = await Navigator.of(context).push(
+      PageRouteBuilder<bool>(
         pageBuilder: (context, animation, secondaryAnimation) => AddNotePage(
-          existingTitle: title,
-          existingPrice: price,
+          existingNote: note,
           isEditing: true,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -209,5 +231,9 @@ class _NotesPageState extends State<NotesPage> {
         transitionDuration: const Duration(milliseconds: 250),
       ),
     );
+
+    if (result == true && mounted) {
+      context.read<NotesProvider>().fetchNotes();
+    }
   }
 }

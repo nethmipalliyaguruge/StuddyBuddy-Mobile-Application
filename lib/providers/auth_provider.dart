@@ -153,8 +153,11 @@ class AuthProvider with ChangeNotifier {
   Future<void> _fetchUser() async {
     try {
       final response = await _apiService.getUser();
-      _user = User.fromJson(response.data as Map<String, dynamic>);
-      await _storageService.saveUserData(response.data as Map<String, dynamic>);
+      final data = response.data;
+      // API returns {user: {...}} so we need to extract the user object
+      final userData = data['user'] ?? data;
+      _user = User.fromJson(userData as Map<String, dynamic>);
+      await _storageService.saveUserData(userData as Map<String, dynamic>);
     } catch (e) {
       _token = null;
       _user = null;
@@ -172,6 +175,42 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       _error = _parseError(e);
       notifyListeners();
+    }
+  }
+
+  Future<bool> updateProfile({
+    required String name,
+    required String email,
+    String? phone,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.updateProfile(
+        name: name,
+        email: email,
+        phone: phone,
+      );
+
+      final data = response.data;
+      if (data['user'] != null) {
+        _user = User.fromJson(data['user'] as Map<String, dynamic>);
+        await _storageService.saveUserData(data['user'] as Map<String, dynamic>);
+      } else if (data != null) {
+        _user = User.fromJson(data as Map<String, dynamic>);
+        await _storageService.saveUserData(data);
+      }
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _parseError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
   }
 

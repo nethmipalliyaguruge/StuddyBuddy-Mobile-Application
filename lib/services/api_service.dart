@@ -2,9 +2,10 @@ import 'package:dio/dio.dart';
 import 'storage_service.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://10.0.2.2:8000/api'; // Android emulator localhost
-  // Use 'http://localhost:8000/api' for iOS simulator or web
-  // Use your machine's IP address for physical devices
+  // For Chrome/Web: use localhost
+  // For Android emulator: use 10.0.2.2:8000
+  // For physical device: use your PC's IP (e.g., 10.2.4.8)
+  static const String baseUrl = 'http://localhost:8000/api';
 
   late final Dio _dio;
   final StorageService _storageService;
@@ -68,6 +69,18 @@ class ApiService {
 
   Future<Response> getUser() async {
     return await _dio.get('/user');
+  }
+
+  Future<Response> updateProfile({
+    required String name,
+    required String email,
+    String? phone,
+  }) async {
+    return await _dio.put('/user', data: {
+      'name': name,
+      'email': email,
+      if (phone != null) 'phone': phone,
+    });
   }
 
   // ==================== PUBLIC ENDPOINTS ====================

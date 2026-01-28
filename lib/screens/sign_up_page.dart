@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
+import 'package:provider/provider.dart';
+import 'package:studybuddy/providers/auth_provider.dart';
 import 'package:studybuddy/utils/constants.dart';
 import 'package:studybuddy/utils/helpers.dart';
 import 'package:studybuddy/widgets/custom_button.dart';
@@ -193,97 +194,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  Widget buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    required String? Function(String?) validator,
-    TextInputType? keyboardType,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(
-          color: Theme.of(context).textTheme.bodyMedium?.color,
-        ),
-        hintText: hint,
-        hintStyle: TextStyle(
-          color: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
-        ),
-        prefixIcon: Icon(icon, color: kBrandGreen),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).dividerColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: kBrandGreen, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 1),
-        ),
-        filled: true,
-        fillColor: Theme.of(context).cardColor,
-      ),
-    );
-  }
-
-  Widget buildPasswordField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required bool isVisible,
-    required VoidCallback onToggleVisibility,
-    required String? Function(String?) validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: !isVisible,
-      validator: validator,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(
-          color: Theme.of(context).textTheme.bodyMedium?.color,
-        ),
-        hintText: hint,
-        hintStyle: TextStyle(
-          color: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
-        ),
-        prefixIcon: const Icon(Icons.lock_outlined, color: kBrandGreen),
-        suffixIcon: IconButton(
-          icon: Icon(
-            isVisible ? Icons.visibility : Icons.visibility_off,
-            color: Theme.of(context).iconTheme.color,
-          ),
-          onPressed: onToggleVisibility,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).dividerColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: kBrandGreen, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 1),
-        ),
-        filled: true,
-        fillColor: Theme.of(context).cardColor,
-      ),
-    );
-  }
-
   Widget buildTermsCheckbox() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,7 +233,15 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Widget buildSignUpButton() {
-    return CustomButton(text: 'Create Account', onPressed: handleSignUp);
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        return authProvider.isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: kBrandGreen),
+              )
+            : CustomButton(text: 'Create Account', onPressed: handleSignUp);
+      },
+    );
   }
 
   Widget buildLoginLink() {
@@ -351,7 +269,7 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  void handleSignUp() {
+  Future<void> handleSignUp() async {
     if (formKey.currentState!.validate()) {
       if (!acceptTerms) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -367,32 +285,55 @@ class _SignUpPageState extends State<SignUpPage> {
       }
 
       // Get the registered credentials
+      String registeredName = nameController.text.trim();
       String registeredEmail = emailController.text.trim();
+      String registeredPhone = phoneController.text.trim();
       String registeredPassword = passwordController.text.trim();
 
-      // Add user to storage
-      UserStorage.addUser(registeredEmail, registeredPassword);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Account created successfully! Redirecting to login...',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: kBrandGreen,
-          duration: Duration(seconds: 2),
-        ),
+      final authProvider = context.read<AuthProvider>();
+      final success = await authProvider.register(
+        name: registeredName,
+        email: registeredEmail,
+        phone: registeredPhone,
+        password: registeredPassword,
+        passwordConfirmation: confirmPasswordController.text.trim(),
       );
 
-      // Navigate back to LoginPage with credentials
-      Future.delayed(const Duration(seconds: 2), () {
-        if (!mounted) return;
-        Navigator.pop(context, {
-          'email': registeredEmail,
-          'password': registeredPassword,
-          'registered': true,
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Account created successfully! Redirecting to login...',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: kBrandGreen,
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        // Navigate back to LoginPage with credentials
+        Future.delayed(const Duration(seconds: 2), () {
+          if (!mounted) return;
+          Navigator.pop(context, {
+            'email': registeredEmail,
+            'password': registeredPassword,
+            'registered': true,
+          });
         });
-      });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              authProvider.error ?? 'Registration failed. Please try again.',
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+        authProvider.clearError();
+      }
     }
   }
 }

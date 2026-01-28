@@ -35,7 +35,9 @@ class ConnectivityProvider with ChangeNotifier {
     return _isOnline;
   }
 
+  @override
   void dispose() {
     _connectivityService.dispose();
+    super.dispose();
   }
 }

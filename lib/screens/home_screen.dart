@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:studybuddy/providers/auth_provider.dart';
+import 'package:studybuddy/providers/cart_provider.dart';
+import 'package:studybuddy/providers/notes_provider.dart';
+import 'package:studybuddy/providers/purchases_provider.dart';
 import 'package:studybuddy/screens/add_note_page.dart';
 import 'package:studybuddy/screens/cart_page.dart';
 import 'package:studybuddy/screens/detail_page.dart';
@@ -45,8 +50,23 @@ class _HomescreenState extends State<Homescreen> {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch data when home page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotesProvider>().fetchNotes();
+      context.read<PurchasesProvider>().fetchPurchases();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +75,7 @@ class HomePage extends StatelessWidget {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'StudyBuddy',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -63,21 +83,51 @@ class HomePage extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            SizedBox(width: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CartPage()),
+            const SizedBox(width: 16),
+            Consumer<CartProvider>(
+              builder: (context, cartProvider, child) {
+                return Stack(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CartPage(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: kBrandGreen,
+                        minimumSize: const Size(60, 40),
+                        padding: const EdgeInsets.all(8),
+                      ),
+                      child: const Icon(Icons.shopping_cart),
+                    ),
+                    if (cartProvider.itemCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            cartProvider.itemCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: kBrandGreen,
-                minimumSize: const Size(60, 40),
-                padding: const EdgeInsets.all(8),
-              ),
-              child: Icon(Icons.shopping_cart),
             ),
           ],
         ),
@@ -104,67 +154,78 @@ class HomePage extends StatelessWidget {
 
   Widget buildWelcomeSection(BuildContext context) {
     bool isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? Theme.of(context).cardColor : null,
-        gradient: isDark
-            ? null
-            : LinearGradient(
-                colors: [kBrandGreen, kBrandGreen.withValues(alpha: 0.8)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Welcome back, John! 👋',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isDark
-                  ? Theme.of(context).colorScheme.onSurface
-                  : Colors.white,
-            ),
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        final userName = authProvider.user?.name ?? 'Student';
+        final firstName = userName.split(' ').first;
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: isDark ? Theme.of(context).cardColor : null,
+            gradient: isDark
+                ? null
+                : LinearGradient(
+                    colors: [kBrandGreen, kBrandGreen.withValues(alpha: 0.8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+            borderRadius: BorderRadius.circular(16),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Ready to continue your learning journey?',
-            style: TextStyle(
-              fontSize: 16,
-              color: isDark
-                  ? Theme.of(context).colorScheme.onSurfaceVariant
-                  : Colors.white70,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.trending_up,
-                color: isDark
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.white70,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
               Text(
-                '5 new notes available',
+                'Welcome back, $firstName!',
                 style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: isDark
+                      ? Theme.of(context).colorScheme.onSurface
+                      : Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Ready to continue your learning journey?',
+                style: TextStyle(
+                  fontSize: 16,
                   color: isDark
                       ? Theme.of(context).colorScheme.onSurfaceVariant
                       : Colors.white70,
-                  fontSize: 14,
                 ),
+              ),
+              const SizedBox(height: 16),
+              Consumer<NotesProvider>(
+                builder: (context, notesProvider, child) {
+                  return Row(
+                    children: [
+                      Icon(
+                        Icons.trending_up,
+                        color: isDark
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.white70,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${notesProvider.noteCount} notes available',
+                        style: TextStyle(
+                          color: isDark
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                              : Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -222,16 +283,22 @@ class HomePage extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: buildActionCard(
-                context: context,
-                icon: Icons.shopping_cart,
-                title: 'My Cart',
-                subtitle: '3 items',
-                color: Colors.purple,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CartPage()),
+              child: Consumer<CartProvider>(
+                builder: (context, cartProvider, child) {
+                  return buildActionCard(
+                    context: context,
+                    icon: Icons.shopping_cart,
+                    title: 'My Cart',
+                    subtitle: '${cartProvider.itemCount} items',
+                    color: Colors.purple,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CartPage(),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -343,34 +410,59 @@ class HomePage extends StatelessWidget {
         const SizedBox(height: 16),
         SizedBox(
           height: 200,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              buildFeaturedNoteCard(
-                context: context,
-                title: 'Database Systems & Data Structures',
-                subtitle: 'Complete guide',
-                price: 'LKR 850',
-                rating: 4.8,
-                category: 'Computing',
-              ),
-              buildFeaturedNoteCard(
-                context: context,
-                title: 'Web Development Fundamentals',
-                subtitle: 'Frontend & Backend',
-                price: 'LKR 800',
-                rating: 4.9,
-                category: 'Computing',
-              ),
-              buildFeaturedNoteCard(
-                context: context,
-                title: 'Mobile App Development',
-                subtitle: 'Flutter & React Native',
-                price: 'LKR 350',
-                rating: 4.7,
-                category: 'Computing',
-              ),
-            ],
+          child: Consumer<NotesProvider>(
+            builder: (context, notesProvider, child) {
+              if (notesProvider.notes.isEmpty) {
+                return ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    buildFeaturedNoteCard(
+                      context: context,
+                      title: 'Database Systems & Data Structures',
+                      subtitle: 'Complete guide',
+                      price: 'LKR 850',
+                      rating: 4.8,
+                      category: 'Computing',
+                    ),
+                    buildFeaturedNoteCard(
+                      context: context,
+                      title: 'Web Development Fundamentals',
+                      subtitle: 'Frontend & Backend',
+                      price: 'LKR 800',
+                      rating: 4.9,
+                      category: 'Computing',
+                    ),
+                    buildFeaturedNoteCard(
+                      context: context,
+                      title: 'Mobile App Development',
+                      subtitle: 'Flutter & React Native',
+                      price: 'LKR 350',
+                      rating: 4.7,
+                      category: 'Computing',
+                    ),
+                  ],
+                );
+              }
+
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount:
+                    notesProvider.notes.length > 5
+                        ? 5
+                        : notesProvider.notes.length,
+                itemBuilder: (context, index) {
+                  final note = notesProvider.notes[index];
+                  return buildFeaturedNoteCard(
+                    context: context,
+                    title: note.title,
+                    subtitle: note.module?.name ?? 'Study Material',
+                    price: 'LKR ${note.price.toStringAsFixed(0)}',
+                    rating: 4.5 + (index * 0.1),
+                    category: 'Computing',
+                  );
+                },
+              );
+            },
           ),
         ),
       ],
@@ -477,10 +569,10 @@ class HomePage extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          Icon(Icons.star, color: Colors.amber, size: 14),
+                          const Icon(Icons.star, color: Colors.amber, size: 14),
                           const SizedBox(width: 2),
                           Text(
-                            rating.toString(),
+                            rating.toStringAsFixed(1),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -610,27 +702,47 @@ class HomePage extends StatelessWidget {
   }
 
   Widget buildStatsSection(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return Consumer<PurchasesProvider>(
+      builder: (context, purchasesProvider, child) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          buildStatItem(context, 'Notes Owned', '5'),
-          buildStatItem(context, 'Total Spent', 'LKR 3,250'),
-          buildStatItem(context, 'Downloads', '3'),
-        ],
-      ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              buildStatItem(
+                context,
+                'Notes Owned',
+                purchasesProvider.purchaseCount.toString(),
+              ),
+              buildStatItem(
+                context,
+                'Total Spent',
+                'LKR ${purchasesProvider.totalSpent.toStringAsFixed(0)}',
+              ),
+              Consumer<NotesProvider>(
+                builder: (context, notesProvider, child) {
+                  return buildStatItem(
+                    context,
+                    'My Notes',
+                    notesProvider.noteCount.toString(),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
