@@ -282,6 +282,65 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   Widget buildProductList() {
+    return Consumer<MaterialsProvider>(
+      builder: (context, materialsProvider, child) {
+        // Show loading indicator while fetching
+        if (materialsProvider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: kBrandGreen),
+          );
+        }
+
+        // Use API data if available
+        List<StudyMaterial> materials = materialsProvider.materials;
+
+        if (materials.isNotEmpty) {
+          // Filter by selected category (match against module name or use all if no match)
+          final filtered = _filterMaterialsByCategory(materials);
+
+          if (filtered.isEmpty) {
+            // No materials match the category, show fallback
+            return _buildFallbackList();
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: filtered.length,
+            itemBuilder: (context, index) {
+              return _buildMaterialCard(filtered[index]);
+            },
+          );
+        }
+
+        // Fallback to hardcoded data (offline mode or empty API response)
+        return _buildFallbackList();
+      },
+    );
+  }
+
+  List<StudyMaterial> _filterMaterialsByCategory(List<StudyMaterial> materials) {
+    // Map category names to possible module/school keywords
+    final categoryKeywords = {
+      'Computing': ['computing', 'database', 'web', 'mobile', 'software', 'programming', 'server', 'authentication'],
+      'Business': ['business', 'management', 'accounting', 'marketing', 'finance', 'hr', 'human resource'],
+      'Law': ['law', 'legal', 'constitutional', 'contract', 'criminal', 'corporate'],
+    };
+
+    final keywords = categoryKeywords[selectedCategory] ?? [];
+
+    return materials.where((material) {
+      final title = material.title.toLowerCase();
+      final description = (material.description ?? '').toLowerCase();
+      final moduleName = material.module?.name.toLowerCase() ?? '';
+
+      return keywords.any((keyword) =>
+          title.contains(keyword) ||
+          description.contains(keyword) ||
+          moduleName.contains(keyword));
+    }).toList();
+  }
+
+  Widget _buildFallbackList() {
     List<Map<String, dynamic>> products =
         categoryProducts[selectedCategory] ?? [];
 
@@ -291,6 +350,186 @@ class _ExplorePageState extends State<ExplorePage> {
       itemBuilder: (context, index) {
         return buildProductCard(products[index]);
       },
+    );
+  }
+
+  Widget _buildMaterialCard(StudyMaterial material) {
+    final cartProvider = context.watch<CartProvider>();
+    final isInCart = cartProvider.isInCart(material.id);
+
+    // Convert StudyMaterial to Map for navigation to detail page
+    final productMap = {
+      'id': material.id,
+      'title': material.title,
+      'description': material.description ?? 'Study material',
+      'price': material.price,
+      'rating': 4.5, // Default rating since API may not have it
+      'level': material.module?.name ?? 'Level 5',
+    };
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                NoteDetailPage(product: productMap, category: selectedCategory),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Icon
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [kBrandGreen.withValues(alpha: 0.8), kBrandGreen],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.book, color: Colors.white, size: 28),
+              ),
+              const SizedBox(width: 16),
+
+              // Product Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      material.title,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      material.description ?? 'Study material',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            material.module?.name ?? 'Module',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Colors.blue.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.star, color: Colors.amber, size: 16),
+                        const SizedBox(width: 2),
+                        Text(
+                          '4.5',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Price and Add Button
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'LKR ${material.price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: kBrandGreen,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: isInCart
+                        ? null
+                        : () {
+                            _addMaterialToCart(material);
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isInCart ? Colors.grey : kBrandGreen,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(60, 32),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      isInCart ? 'Added' : 'Add',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _addMaterialToCart(StudyMaterial material) {
+    context.read<CartProvider>().addItem(material);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${material.title} added to cart!',
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: kBrandGreen,
+        duration: const Duration(seconds: 1),
+        action: SnackBarAction(
+          label: 'View Cart',
+          textColor: Colors.white,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CartPage()),
+            );
+          },
+        ),
+      ),
     );
   }
 

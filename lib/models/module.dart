@@ -20,15 +20,24 @@ class Module {
   });
 
   factory Module.fromJson(Map<String, dynamic> json) {
+    // Handle both API format (title, status) and local JSON format (name, is_active)
+    final isActive = json['is_active'] != null
+        ? (json['is_active'] == 1 || json['is_active'] == true)
+        : (json['status'] == true || json['status'] == 1);
+
     return Module(
       id: json['id'] as int,
       levelId: json['level_id'] as int,
-      name: json['name'] as String,
+      name: (json['name'] ?? json['title'] ?? '') as String,
       code: json['code'] as String?,
       description: json['description'] as String?,
-      isActive: json['is_active'] == 1 || json['is_active'] == true,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      isActive: isActive,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 
