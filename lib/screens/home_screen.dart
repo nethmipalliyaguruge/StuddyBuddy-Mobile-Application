@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:studybuddy/providers/auth_provider.dart';
 import 'package:studybuddy/providers/cart_provider.dart';
+import 'package:studybuddy/providers/connectivity_provider.dart';
 import 'package:studybuddy/providers/notes_provider.dart';
 import 'package:studybuddy/providers/purchases_provider.dart';
 import 'package:studybuddy/screens/add_note_page.dart';
@@ -27,7 +28,34 @@ class _HomescreenState extends State<Homescreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_index],
+      body: Column(
+        children: [
+          Consumer<ConnectivityProvider>(
+            builder: (context, connectivity, child) {
+              if (connectivity.isOnline) return const SizedBox.shrink();
+              return MaterialBanner(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                leading: const Icon(Icons.wifi_off, color: Colors.white),
+                backgroundColor: Colors.red.shade700,
+                content: const Text(
+                  'You are offline. Showing cached data.',
+                  style: TextStyle(color: Colors.white),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => connectivity.checkConnectivity(),
+                    child: const Text(
+                      'RETRY',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          Expanded(child: _pages[_index]),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (int newIndex) {
