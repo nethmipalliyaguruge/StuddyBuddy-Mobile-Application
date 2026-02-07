@@ -61,7 +61,9 @@ class MaterialsProvider with ChangeNotifier {
       _isOffline = false;
 
       await _storageService.saveToCache('schools', data);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('fetchSchools error: $e');
+      debugPrint('Stack trace: $stackTrace');
       await _loadFromCacheOrAssets('schools');
     } finally {
       _isLoading = false;
@@ -77,13 +79,22 @@ class MaterialsProvider with ChangeNotifier {
     try {
       final response = await _apiService.getLevels(schoolId: schoolId);
       final data = response.data['data'] ?? response.data;
-      _levels = (data as List)
+      final allLevels = (data as List)
           .map((e) => Level.fromJson(e as Map<String, dynamic>))
           .toList();
+      // Filter by schoolId client-side in case the API doesn't filter
+      final filtered = schoolId != null
+          ? allLevels.where((level) => level.schoolId == schoolId).toList()
+          : allLevels;
+      // Deduplicate by id to avoid duplicate dropdown entries
+      final seen = <int>{};
+      _levels = filtered.where((level) => seen.add(level.id)).toList();
       _isOffline = false;
 
       await _storageService.saveToCache('levels', data);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('fetchLevels error: $e');
+      debugPrint('Stack trace: $stackTrace');
       await _loadFromCacheOrAssets('levels');
     } finally {
       _isLoading = false;
@@ -105,7 +116,9 @@ class MaterialsProvider with ChangeNotifier {
       _isOffline = false;
 
       await _storageService.saveToCache('modules', data);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('fetchModules error: $e');
+      debugPrint('Stack trace: $stackTrace');
       await _loadFromCacheOrAssets('modules');
     } finally {
       _isLoading = false;
@@ -135,7 +148,9 @@ class MaterialsProvider with ChangeNotifier {
       _isOffline = false;
 
       await _storageService.saveToCache('materials', data);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('fetchMaterials error: $e');
+      debugPrint('Stack trace: $stackTrace');
       await _loadFromCacheOrAssets('materials');
     } finally {
       _isLoading = false;

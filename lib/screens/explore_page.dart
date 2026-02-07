@@ -17,6 +17,13 @@ class ExplorePage extends StatefulWidget {
 class _ExplorePageState extends State<ExplorePage> {
   String selectedCategory = 'Computing';
 
+  // Map category names to school IDs from Laravel backend
+  final Map<String, int> categoryToSchoolId = {
+    'Computing': 1,
+    'Business': 2,
+    'Law': 3,
+  };
+
   // Fallback data when API is not available
   final Map<String, List<Map<String, dynamic>>> categoryProducts = {
     'Computing': [
@@ -134,10 +141,17 @@ class _ExplorePageState extends State<ExplorePage> {
   @override
   void initState() {
     super.initState();
-    // Fetch materials from API when page loads
+    // Fetch materials filtered by default category (Computing = school_id 1)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MaterialsProvider>().fetchMaterials();
+      _fetchMaterialsByCategory();
     });
+  }
+
+  void _fetchMaterialsByCategory() {
+    final schoolId = categoryToSchoolId[selectedCategory];
+    final provider = context.read<MaterialsProvider>();
+    provider.setFilters(schoolId: schoolId);
+    provider.fetchMaterials();
   }
 
   @override
@@ -240,6 +254,8 @@ class _ExplorePageState extends State<ExplorePage> {
         setState(() {
           selectedCategory = category;
         });
+        // Fetch materials filtered by the selected category's school
+        _fetchMaterialsByCategory();
       },
       child: Container(
         margin: const EdgeInsets.only(right: 12),
@@ -291,53 +307,43 @@ class _ExplorePageState extends State<ExplorePage> {
           );
         }
 
-        // Use API data if available
+        // Use API data if available (already filtered by school_id on server)
         List<StudyMaterial> materials = materialsProvider.materials;
 
         if (materials.isNotEmpty) {
-          // Filter by selected category (match against module name or use all if no match)
-          final filtered = _filterMaterialsByCategory(materials);
-
-          if (filtered.isEmpty) {
-            // No materials match the category, show fallback
-            return _buildFallbackList();
-          }
-
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: filtered.length,
+            itemCount: materials.length,
             itemBuilder: (context, index) {
-              return _buildMaterialCard(filtered[index]);
+              return _buildMaterialCard(materials[index]);
             },
           );
         }
 
-        // Fallback to hardcoded data (offline mode or empty API response)
-        return _buildFallbackList();
+        // Check if offline or error occurred
+        if (materialsProvider.isOffline || materialsProvider.error != null) {
+          return _buildFallbackList();
+        }
+
+        // Empty result from API
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.folder_open, size: 64, color: Colors.grey.shade400),
+              const SizedBox(height: 16),
+              Text(
+                'No materials found for $selectedCategory',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
+        );
       },
     );
-  }
-
-  List<StudyMaterial> _filterMaterialsByCategory(List<StudyMaterial> materials) {
-    // Map category names to possible module/school keywords
-    final categoryKeywords = {
-      'Computing': ['computing', 'database', 'web', 'mobile', 'software', 'programming', 'server', 'authentication'],
-      'Business': ['business', 'management', 'accounting', 'marketing', 'finance', 'hr', 'human resource'],
-      'Law': ['law', 'legal', 'constitutional', 'contract', 'criminal', 'corporate'],
-    };
-
-    final keywords = categoryKeywords[selectedCategory] ?? [];
-
-    return materials.where((material) {
-      final title = material.title.toLowerCase();
-      final description = (material.description ?? '').toLowerCase();
-      final moduleName = material.module?.name.toLowerCase() ?? '';
-
-      return keywords.any((keyword) =>
-          title.contains(keyword) ||
-          description.contains(keyword) ||
-          moduleName.contains(keyword));
-    }).toList();
   }
 
   Widget _buildFallbackList() {

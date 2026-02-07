@@ -1,3 +1,15 @@
+DateTime _parseDateTime(dynamic value) {
+  if (value == null || value == '') return DateTime.now();
+  if (value is String) {
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
+      return DateTime.now();
+    }
+  }
+  return DateTime.now();
+}
+
 class Module {
   final int id;
   final int levelId;
@@ -32,14 +44,17 @@ class Module {
       code: json['code'] as String?,
       description: json['description'] as String?,
       isActive: isActive,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : DateTime.now(),
+      createdAt: _parseDateTime(json['created_at']),
+      updatedAt: _parseDateTime(json['updated_at']),
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is Module && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 
   Map<String, dynamic> toJson() {
     return {

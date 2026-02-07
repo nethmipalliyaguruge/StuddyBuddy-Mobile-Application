@@ -7,6 +7,9 @@ class ApiService {
   // For physical device: use your PC's IP (e.g., 10.2.4.8)
   static const String baseUrl = 'http://localhost:8000/api';
 
+  // // Hosted Laravel backend
+  // static const String baseUrl = 'http://52.221.236.102/api';
+
   late final Dio _dio;
   final StorageService _storageService;
 
@@ -122,7 +125,9 @@ class ApiService {
     double? maxPrice,
     String? sort,
   }) async {
-    final queryParams = <String, dynamic>{};
+    final queryParams = <String, dynamic>{
+      'per_page': 100, // Get all materials in one request (API defaults to 15)
+    };
     if (schoolId != null) queryParams['school_id'] = schoolId;
     if (levelId != null) queryParams['level_id'] = levelId;
     if (moduleId != null) queryParams['module_id'] = moduleId;

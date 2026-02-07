@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:studybuddy/providers/auth_provider.dart';
 import 'package:studybuddy/providers/cart_provider.dart';
 import 'package:studybuddy/providers/connectivity_provider.dart';
+import 'package:studybuddy/providers/theme_provider.dart';
 import 'package:studybuddy/providers/notes_provider.dart';
 import 'package:studybuddy/providers/purchases_provider.dart';
 import 'package:studybuddy/screens/add_note_page.dart';
@@ -11,6 +12,7 @@ import 'package:studybuddy/screens/detail_page.dart';
 import 'package:studybuddy/screens/explore_page.dart';
 import 'package:studybuddy/screens/notes_page.dart';
 import 'package:studybuddy/screens/profile_page.dart';
+import 'package:studybuddy/services/light_sensor_service.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class Homescreen extends StatefulWidget {
@@ -22,8 +24,69 @@ class Homescreen extends StatefulWidget {
 
 class _HomescreenState extends State<Homescreen> {
   int _index = 0;
+  final LightSensorService _lightSensorService = LightSensorService();
+  bool _darkModeSuggested = false;
 
   final _pages = const [HomePage(), ExplorePage(), NotesPage(), ProfilePage()];
+
+  @override
+  void initState() {
+    super.initState();
+    _initLightSensor();
+  }
+
+  @override
+  void dispose() {
+    _lightSensorService.dispose();
+    super.dispose();
+  }
+
+  void _initLightSensor() {
+    try {
+      _lightSensorService.startListening((lux) {
+        if (!mounted || _darkModeSuggested) return;
+
+        final themeProvider = context.read<ThemeProvider>();
+
+        // Suggest dark mode if low light and currently in light mode
+        if (lux < 50 && !themeProvider.isDarkMode) {
+          _darkModeSuggested = true;
+          _showDarkModeSuggestion();
+        }
+      });
+    } catch (e) {
+      // Light sensor not available on this platform (e.g., web)
+    }
+  }
+
+  void _showDarkModeSuggestion() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.lightbulb_outline, color: Colors.white),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Low light detected. Switch to dark mode?',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.blueGrey.shade700,
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'ENABLE',
+          textColor: kBrandGreen,
+          onPressed: () {
+            context.read<ThemeProvider>().setDarkMode();
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

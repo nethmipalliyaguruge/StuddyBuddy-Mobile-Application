@@ -1,3 +1,19 @@
+DateTime? _parseNullableDateTime(dynamic value) {
+  if (value == null || value == '') return null;
+  if (value is String) {
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
+      return null;
+    }
+  }
+  return null;
+}
+
+DateTime _parseDateTime(dynamic value) {
+  return _parseNullableDateTime(value) ?? DateTime.now();
+}
+
 class User {
   final int id;
   final String name;
@@ -22,17 +38,13 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as int,
-      name: json['name'] as String,
-      email: json['email'] as String,
+      name: json['name'] as String? ?? 'Unknown',
+      email: json['email'] as String? ?? '',
       phone: json['phone'] as String?,
       role: json['role'] as String? ?? 'student',
       profilePhotoUrl: json['profile_photo_url'] as String?,
-      emailVerifiedAt: json['email_verified_at'] != null
-          ? DateTime.parse(json['email_verified_at'] as String)
-          : null,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
+      emailVerifiedAt: _parseNullableDateTime(json['email_verified_at']),
+      createdAt: _parseDateTime(json['created_at']),
     );
   }
 

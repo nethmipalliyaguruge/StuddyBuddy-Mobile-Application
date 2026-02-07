@@ -1,6 +1,18 @@
 import 'user.dart';
 import 'module.dart';
 
+DateTime _parseDateTime(dynamic value) {
+  if (value == null || value == '') return DateTime.now();
+  if (value is String) {
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
+      return DateTime.now();
+    }
+  }
+  return DateTime.now();
+}
+
 class StudyMaterial {
   final int id;
   final int userId;
@@ -63,8 +75,8 @@ class StudyMaterial {
       previewImage: previewImage,
       price: (json['price'] as num).toDouble(),
       isActive: isActive,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: _parseDateTime(json['created_at']),
+      updatedAt: _parseDateTime(json['updated_at']),
       seller: json['seller'] != null || json['user'] != null
           ? User.fromJson((json['seller'] ?? json['user']) as Map<String, dynamic>)
           : null,

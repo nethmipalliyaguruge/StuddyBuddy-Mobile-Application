@@ -53,6 +53,9 @@ dependencies:
   # Camera/Image
   image_picker: ^1.0.7
 
+  # File Picker (for documents: PDF, DOC, PPTX)
+  file_picker: ^8.0.0
+
   # Battery
   battery_plus: ^5.0.2
 

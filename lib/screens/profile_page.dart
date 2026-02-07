@@ -1,5 +1,8 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:studybuddy/providers/auth_provider.dart';
 import 'package:studybuddy/providers/theme_provider.dart';
 import 'package:studybuddy/providers/notes_provider.dart';
@@ -8,6 +11,7 @@ import 'package:studybuddy/screens/login_page.dart';
 import 'package:studybuddy/screens/my_orders_page.dart';
 import 'package:studybuddy/screens/personal_details_screen.dart';
 import 'package:studybuddy/screens/cart_page.dart';
+import 'package:studybuddy/services/battery_service.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -18,14 +22,94 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final BatteryService _batteryService = BatteryService();
+  final ImagePicker _imagePicker = ImagePicker();
+  BatteryInfo? _batteryInfo;
+  XFile? _profileImage;
+
   @override
   void initState() {
     super.initState();
-    // Fetch data when page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NotesProvider>().fetchNotes();
       context.read<PurchasesProvider>().fetchPurchases();
+      _loadBatteryInfo();
     });
+  }
+
+  Future<void> _loadBatteryInfo() async {
+    try {
+      final info = await _batteryService.getBatteryInfo();
+      if (mounted) {
+        setState(() => _batteryInfo = info);
+      }
+    } catch (e) {
+      // Battery info not available on this platform
+    }
+  }
+
+  Future<void> _pickProfileImage() async {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt, color: kBrandGreen),
+                title: const Text('Take Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _getImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: kBrandGreen),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _getImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _getImage(ImageSource source) async {
+    try {
+      final image = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 80,
+      );
+      if (image != null && mounted) {
+        setState(() => _profileImage = image);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile photo updated!', style: TextStyle(color: Colors.white)),
+            backgroundColor: kBrandGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not access camera: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -91,34 +175,46 @@ class _ProfilePageState extends State<ProfilePage> {
                 return Column(
                   children: [
                     // Profile Avatar
-                    Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: kBrandGreen.withValues(alpha: 0.1),
-                          child: const Icon(
-                            Icons.account_circle,
-                            size: 80,
-                            color: kBrandGreen,
+                    GestureDetector(
+                      onTap: _pickProfileImage,
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundColor: kBrandGreen.withValues(alpha: 0.1),
+                            backgroundImage: _profileImage != null
+                                ? (kIsWeb
+                                    ? NetworkImage(_profileImage!.path)
+                                    : FileImage(File(_profileImage!.path)))
+                                    as ImageProvider
+                                : null,
+                            child: _profileImage == null
+                                ? const Icon(
+                                    Icons.account_circle,
+                                    size: 80,
+                                    color: kBrandGreen,
+                                  )
+                                : null,
                           ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: kBrandGreen,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                              size: 20,
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: kBrandGreen,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 16,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16),
 
@@ -293,6 +389,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                 ),
 
+                // Battery Status
+                _buildBatteryWidget(),
+
                 ProfileOption(
                   icon: Icons.notifications_outlined,
                   label: "Notifications",
@@ -422,34 +521,46 @@ class _ProfilePageState extends State<ProfilePage> {
           return Column(
             children: [
               // Profile Avatar
-              Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: kBrandGreen.withValues(alpha: 0.1),
-                    child: const Icon(
-                      Icons.account_circle,
-                      size: 100,
-                      color: kBrandGreen,
+              GestureDetector(
+                onTap: _pickProfileImage,
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundColor: kBrandGreen.withValues(alpha: 0.1),
+                      backgroundImage: _profileImage != null
+                          ? (kIsWeb
+                              ? NetworkImage(_profileImage!.path)
+                              : FileImage(File(_profileImage!.path)))
+                              as ImageProvider
+                          : null,
+                      child: _profileImage == null
+                          ? const Icon(
+                              Icons.account_circle,
+                              size: 100,
+                              color: kBrandGreen,
+                            )
+                          : null,
                     ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: kBrandGreen,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 24,
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: kBrandGreen,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
 
@@ -657,6 +768,9 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
 
+          // Battery Status
+          _buildBatteryWidget(),
+
           ProfileOption(
             icon: Icons.notifications_outlined,
             label: "Notifications",
@@ -744,6 +858,80 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBatteryWidget() {
+    if (_batteryInfo == null) return const SizedBox.shrink();
+
+    final level = _batteryInfo!.level;
+    final isCharging = _batteryInfo!.isCharging;
+    final isLow = _batteryInfo!.isLow;
+
+    IconData batteryIcon;
+    Color batteryColor;
+    if (isCharging) {
+      batteryIcon = Icons.battery_charging_full;
+      batteryColor = kBrandGreen;
+    } else if (level > 80) {
+      batteryIcon = Icons.battery_full;
+      batteryColor = kBrandGreen;
+    } else if (level > 50) {
+      batteryIcon = Icons.battery_5_bar;
+      batteryColor = Colors.green;
+    } else if (level > 20) {
+      batteryIcon = Icons.battery_3_bar;
+      batteryColor = Colors.orange;
+    } else {
+      batteryIcon = Icons.battery_1_bar;
+      batteryColor = Colors.red;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: batteryColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(batteryIcon, color: batteryColor, size: 24),
+        ),
+        title: Text(
+          'Battery',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          '${_batteryInfo!.stateString}${isLow ? ' - Low battery!' : ''}',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: isLow ? Colors.red : Colors.grey[600],
+          ),
+        ),
+        trailing: Text(
+          '$level%',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: batteryColor,
+          ),
+        ),
+        onTap: _loadBatteryInfo,
       ),
     );
   }

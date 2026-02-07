@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../models/note.dart';
 import '../services/api_service.dart';
@@ -82,7 +83,16 @@ class NotesProvider with ChangeNotifier {
       await fetchNotes();
       return true;
     } catch (e) {
-      _error = 'Failed to create note';
+      if (e is DioException && e.response != null) {
+        final data = e.response!.data;
+        if (data is Map && data['message'] != null) {
+          _error = data['message'].toString();
+        } else {
+          _error = 'Failed to create note (${e.response!.statusCode})';
+        }
+      } else {
+        _error = 'Failed to create note: $e';
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -113,7 +123,16 @@ class NotesProvider with ChangeNotifier {
       await fetchNotes();
       return true;
     } catch (e) {
-      _error = 'Failed to update note';
+      if (e is DioException && e.response != null) {
+        final data = e.response!.data;
+        if (data is Map && data['message'] != null) {
+          _error = data['message'].toString();
+        } else {
+          _error = 'Failed to update note (${e.response!.statusCode})';
+        }
+      } else {
+        _error = 'Failed to update note: $e';
+      }
       _isLoading = false;
       notifyListeners();
       return false;

@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:studybuddy/providers/notes_provider.dart';
 import 'package:studybuddy/providers/materials_provider.dart';
 import 'package:studybuddy/models/note.dart';
@@ -31,6 +35,10 @@ class _AddNotePageState extends State<AddNotePage> {
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final ImagePicker _imagePicker = ImagePicker();
+
+  PlatformFile? _noteFile;
+  final List<XFile?> _previewImages = [null, null, null];
 
   @override
   void initState() {
@@ -90,14 +98,21 @@ class _AddNotePageState extends State<AddNotePage> {
                   buildTextField(
                     label: 'Price (LKR)',
                     hint: 'Enter price in LKR',
-                    keyboardType: TextInputType.number,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     controller: priceController,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (value == null || value.trim().isEmpty) {
                         return 'Please enter a price';
                       }
-                      if (double.tryParse(value) == null) {
-                        return 'Please enter a valid price';
+                      final price = double.tryParse(value.trim());
+                      if (price == null) {
+                        return 'Please enter a valid number';
+                      }
+                      if (price < 0) {
+                        return 'Price cannot be negative';
+                      }
+                      if (price == 0) {
+                        return 'Price must be greater than 0';
                       }
                       return null;
                     },
@@ -327,7 +342,52 @@ class _AddNotePageState extends State<AddNotePage> {
     );
   }
 
+  Future<void> _pickNoteFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
+      );
+      if (result != null && result.files.isNotEmpty) {
+        setState(() => _noteFile = result.files.first);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not pick file: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  IconData _getFileIcon(String? extension) {
+    switch (extension?.toLowerCase()) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      case 'ppt':
+      case 'pptx':
+        return Icons.slideshow;
+      default:
+        return Icons.insert_drive_file;
+    }
+  }
+
+  String _formatFileSize(int? bytes) {
+    if (bytes == null) return '';
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+
   Widget buildFileUploadSection() {
+    final hasFile = _noteFile != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -338,43 +398,124 @@ class _AddNotePageState extends State<AddNotePage> {
           ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.grey.shade300,
-              style: BorderStyle.solid,
+        GestureDetector(
+          onTap: _pickNoteFile,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+            decoration: BoxDecoration(
+              color: hasFile
+                  ? kBrandGreen.withValues(alpha: 0.05)
+                  : Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: hasFile ? kBrandGreen : Colors.grey.shade300,
+                style: BorderStyle.solid,
+              ),
             ),
-          ),
-          child: Column(
-            children: [
-              Icon(
-                Icons.cloud_upload_outlined,
-                size: 48,
-                color: Colors.grey.shade400,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Click to upload or drag & drop',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+            child: Column(
+              children: [
+                Icon(
+                  hasFile
+                      ? _getFileIcon(_noteFile!.extension)
+                      : Icons.cloud_upload_outlined,
+                  size: 48,
+                  color: hasFile ? kBrandGreen : Colors.grey.shade400,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'PDF, DOC, DOCX, PPT, PPTX',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
-              ),
-            ],
+                const SizedBox(height: 12),
+                Text(
+                  hasFile
+                      ? _noteFile!.name
+                      : 'Tap to select a file',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: hasFile
+                        ? kBrandGreen
+                        : Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  hasFile
+                      ? '${_noteFile!.extension?.toUpperCase()} - ${_formatFileSize(_noteFile!.size)} - Tap to change'
+                      : 'PDF, DOC, DOCX, PPT, PPTX',
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                ),
+              ],
+            ),
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _pickPreviewImage(int index) async {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt, color: kBrandGreen),
+                title: const Text('Take Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _getPreviewImage(index, ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: kBrandGreen),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _getPreviewImage(index, ImageSource.gallery);
+                },
+              ),
+              if (_previewImages[index] != null)
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: const Text('Remove Image'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() => _previewImages[index] = null);
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _getPreviewImage(int index, ImageSource source) async {
+    try {
+      final image = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (image != null && mounted) {
+        setState(() => _previewImages[index] = image);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not pick image: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Widget buildPreviewImagesSection() {
@@ -382,14 +523,14 @@ class _AddNotePageState extends State<AddNotePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Preview Images (Required)',
+          'Preview Images',
           style: Theme.of(
             context,
           ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Text(
-          'Upload clear images of the first 3 pages to show buyers a preview. Accepted: JPG, PNG, WEBP.',
+          'Take photos or select images of the first 3 pages to show buyers a preview.',
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -397,66 +538,86 @@ class _AddNotePageState extends State<AddNotePage> {
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: buildImageUploadField('Page 1')),
+            Expanded(child: _buildPreviewImageCard(0, 'Page 1')),
             const SizedBox(width: 12),
-            Expanded(child: buildImageUploadField('Page 2')),
+            Expanded(child: _buildPreviewImageCard(1, 'Page 2')),
             const SizedBox(width: 12),
-            Expanded(child: buildImageUploadField('Page 3')),
+            Expanded(child: _buildPreviewImageCard(2, 'Page 3')),
           ],
         ),
       ],
     );
   }
 
-  Widget buildImageUploadField(String label) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Image selection coming soon!'),
+  Widget _buildPreviewImageCard(int index, String label) {
+    final image = _previewImages[index];
+    final hasImage = image != null;
+
+    return GestureDetector(
+      onTap: () => _pickPreviewImage(index),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+          const SizedBox(height: 8),
+          Container(
+            height: 120,
+            decoration: BoxDecoration(
+              color: hasImage
+                  ? null
+                  : Theme.of(context).cardColor,
+              border: Border.all(
+                color: hasImage ? kBrandGreen : Colors.grey.shade300,
+              ),
+              borderRadius: BorderRadius.circular(10),
+              image: hasImage
+                  ? DecorationImage(
+                      image: kIsWeb
+                          ? NetworkImage(image.path) as ImageProvider
+                          : FileImage(File(image.path)),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+            ),
+            child: hasImage
+                ? Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      margin: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: kBrandGreen,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade200,
-                  foregroundColor: Colors.black87,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: const Size(0, 36),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
+                  )
+                : Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.add_a_photo,
+                          size: 28,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Add',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                child: const Text(
-                  'Choose File',
-                  style: TextStyle(fontSize: 11),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'No file chosen',
-                  style: TextStyle(fontSize: 11, color: Colors.grey),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -530,6 +691,10 @@ class _AddNotePageState extends State<AddNotePage> {
     final description = descriptionController.text.trim();
     final moduleId = selectedModule?.id ?? 0;
 
+    // Get file paths
+    final filePath = _noteFile?.path;
+    final previewImagePath = _previewImages[0]?.path;
+
     bool success;
     if (widget.isEditing && widget.existingNote != null) {
       success = await notesProvider.updateNote(
@@ -545,6 +710,8 @@ class _AddNotePageState extends State<AddNotePage> {
         description: description,
         price: price,
         moduleId: moduleId,
+        filePath: filePath,
+        previewImagePath: previewImagePath,
       );
     }
 
