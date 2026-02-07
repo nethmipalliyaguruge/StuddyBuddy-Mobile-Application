@@ -6,7 +6,7 @@ A mobile marketplace for students to buy and sell study materials. Built with Fl
 
 - **Browse & Search** - Explore study materials with filters for school, level, module, price range, and keyword search
 - **Sell Notes** - Upload study materials with file attachments and preview images
-- **Secure Payments** - Purchase materials through Stripe checkout
+- **Secure Payments** - Purchase materials through integrated checkout
 - **Order Management** - View purchase history and download bought materials
 - **User Profiles** - Manage personal details and preferences
 - **Dark / Light Theme** - Manual toggle with ambient light sensor suggestion
@@ -20,9 +20,8 @@ A mobile marketplace for students to buy and sell study materials. Built with Fl
 | State Management | Provider |
 | HTTP Client | Dio |
 | Backend | Laravel 12 (PHP ^8.2) |
-| Authentication | Laravel Sanctum (token-based) |
+| Authentication | Jetstream (with Sanctum API tokens) |
 | File Storage | Spatie MediaLibrary |
-| Payments | Stripe |
 | Database | MySQL |
 
 ## Project Structure
@@ -41,8 +40,7 @@ lib/
 ## Prerequisites
 
 - Flutter SDK ^3.8.1
-- A running instance of the [StudyBuddy Laravel backend](../StudyBuddy-backend-laravel) with MySQL
-- Stripe API keys configured on the backend
+- The StudyBuddy Laravel backend (hosted at http://52.221.236.102)
 
 ## Getting Started
 
@@ -50,7 +48,7 @@ lib/
 # Install dependencies
 flutter pub get
 
-# Update the API base URL in lib/utils/constants.dart
+# The API base URL in lib/utils/constants.dart points to the hosted backend
 
 # Run the app
 flutter run
@@ -74,7 +72,7 @@ The Flutter app communicates with a Laravel REST API. Key endpoint groups:
 - `POST /api/register`, `POST /api/login` - Authentication
 - `GET /api/materials` - Browse and filter materials
 - `GET /api/my-notes`, `POST /api/notes` - Manage own notes
-- `POST /api/checkout` - Stripe payment processing
+- `POST /api/checkout` - Payment processing
 - `GET /api/my-purchases` - Purchase history and downloads
 
 See the backend repository for full API documentation.
