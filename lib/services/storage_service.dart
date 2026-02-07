@@ -8,6 +8,7 @@ class StorageService {
 
   final FlutterSecureStorage _secureStorage;
   SharedPreferences? _prefs;
+  String? _cachedToken;
 
   StorageService() : _secureStorage = const FlutterSecureStorage(
     aOptions: AndroidOptions(
@@ -22,14 +23,18 @@ class StorageService {
   // ==================== SECURE STORAGE (Token) ====================
 
   Future<void> saveToken(String token) async {
+    _cachedToken = token;
     await _secureStorage.write(key: _tokenKey, value: token);
   }
 
   Future<String?> getToken() async {
-    return await _secureStorage.read(key: _tokenKey);
+    if (_cachedToken != null) return _cachedToken;
+    _cachedToken = await _secureStorage.read(key: _tokenKey);
+    return _cachedToken;
   }
 
   Future<void> deleteToken() async {
+    _cachedToken = null;
     await _secureStorage.delete(key: _tokenKey);
   }
 
@@ -92,6 +97,7 @@ class StorageService {
   // ==================== CLEAR ALL ====================
 
   Future<void> clearAll() async {
+    _cachedToken = null;
     await _secureStorage.deleteAll();
     await _prefs?.clear();
   }

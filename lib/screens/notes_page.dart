@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:studybuddy/providers/notes_provider.dart';
 import 'package:studybuddy/models/note.dart';
 import 'package:studybuddy/screens/add_note_page.dart';
+import 'package:studybuddy/screens/edit_note_page.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class NotesPage extends StatefulWidget {
@@ -111,15 +112,12 @@ class _NotesPageState extends State<NotesPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.of(context).push(
+        onPressed: () {
+          Navigator.of(context).push(
             MaterialPageRoute<bool>(
               builder: (context) => const AddNotePage(),
             ),
           );
-          if (result == true && mounted) {
-            context.read<NotesProvider>().fetchNotes();
-          }
         },
         backgroundColor: kBrandGreen,
         foregroundColor: Colors.white,
@@ -206,12 +204,11 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  void _navigateToEditNote(BuildContext context, Note note) async {
-    final result = await Navigator.of(context).push(
+  void _navigateToEditNote(BuildContext context, Note note) {
+    Navigator.of(context).push(
       PageRouteBuilder<bool>(
-        pageBuilder: (context, animation, secondaryAnimation) => AddNotePage(
+        pageBuilder: (context, animation, secondaryAnimation) => EditNotePage(
           existingNote: note,
-          isEditing: true,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
@@ -231,9 +228,5 @@ class _NotesPageState extends State<NotesPage> {
         transitionDuration: const Duration(milliseconds: 250),
       ),
     );
-
-    if (result == true && mounted) {
-      context.read<NotesProvider>().fetchNotes();
-    }
   }
 }

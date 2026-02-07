@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'storage_service.dart';
 
@@ -25,20 +26,24 @@ class ApiService {
     ));
 
     _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        final token = await _storageService.getToken();
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        return handler.next(options);
-      },
       onError: (error, handler) {
         if (error.response?.statusCode == 401) {
           _storageService.deleteToken();
+          _dio.options.headers.remove('Authorization');
         }
         return handler.next(error);
       },
     ));
+  }
+
+  /// Sets the auth token on all future requests synchronously.
+  /// Call after login, logout, and app initialization.
+  void setAuthToken(String? token) {
+    if (token != null) {
+      _dio.options.headers['Authorization'] = 'Bearer $token';
+    } else {
+      _dio.options.headers.remove('Authorization');
+    }
   }
 
   // ==================== AUTH ENDPOINTS ====================
@@ -158,18 +163,33 @@ class ApiService {
     required String description,
     required int moduleId,
     required double price,
-    String? filePath,
-    String? previewImagePath,
+    Uint8List? fileBytes,
+    String? fileName,
+    Uint8List? previewImageBytes,
+    String? previewImageName,
   }) async {
-    final formData = FormData.fromMap({
+    final map = <String, dynamic>{
       'title': title,
       'description': description,
       'module_id': moduleId,
       'price': price,
-      if (filePath != null) 'file': await MultipartFile.fromFile(filePath),
-      if (previewImagePath != null)
-        'preview_image': await MultipartFile.fromFile(previewImagePath),
-    });
+    };
+
+    if (fileBytes != null && fileName != null) {
+      map['note_file'] = MultipartFile.fromBytes(
+        fileBytes,
+        filename: fileName,
+      );
+    }
+
+    if (previewImageBytes != null && previewImageName != null) {
+      map['preview_image'] = MultipartFile.fromBytes(
+        previewImageBytes,
+        filename: previewImageName,
+      );
+    }
+
+    final formData = FormData.fromMap(map);
     return await _dio.post('/notes', data: formData);
   }
 

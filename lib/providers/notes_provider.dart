@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../models/note.dart';
@@ -54,22 +55,26 @@ class NotesProvider with ChangeNotifier {
     required String description,
     required int moduleId,
     required double price,
-    String? filePath,
-    String? previewImagePath,
+    Uint8List? fileBytes,
+    String? fileName,
+    Uint8List? previewImageBytes,
+    String? previewImageName,
   }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      if (filePath != null || previewImagePath != null) {
+      if (fileBytes != null || previewImageBytes != null) {
         await _apiService.createNoteWithFile(
           title: title,
           description: description,
           moduleId: moduleId,
           price: price,
-          filePath: filePath,
-          previewImagePath: previewImagePath,
+          fileBytes: fileBytes,
+          fileName: fileName,
+          previewImageBytes: previewImageBytes,
+          previewImageName: previewImageName,
         );
       } else {
         await _apiService.createNote({

@@ -1,26 +1,19 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:studybuddy/providers/notes_provider.dart';
 import 'package:studybuddy/providers/materials_provider.dart';
-import 'package:studybuddy/models/note.dart';
 import 'package:studybuddy/models/school.dart';
 import 'package:studybuddy/models/level.dart';
 import 'package:studybuddy/models/module.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class AddNotePage extends StatefulWidget {
-  final Note? existingNote;
-  final bool isEditing;
-
-  const AddNotePage({
-    super.key,
-    this.existingNote,
-    this.isEditing = false,
-  });
+  const AddNotePage({super.key});
 
   @override
   State<AddNotePage> createState() => _AddNotePageState();
@@ -37,7 +30,8 @@ class _AddNotePageState extends State<AddNotePage> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _imagePicker = ImagePicker();
 
-  PlatformFile? _noteFile;
+  XFile? _noteFile;
+  int? _noteFileSize;
   final List<XFile?> _previewImages = [null, null, null];
 
   @override
@@ -48,13 +42,6 @@ class _AddNotePageState extends State<AddNotePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MaterialsProvider>().fetchSchools();
     });
-
-    // Pre-fill fields if editing
-    if (widget.isEditing && widget.existingNote != null) {
-      titleController.text = widget.existingNote!.title;
-      priceController.text = widget.existingNote!.price.toStringAsFixed(2);
-      descriptionController.text = widget.existingNote!.description ?? '';
-    }
   }
 
   @override
@@ -69,7 +56,7 @@ class _AddNotePageState extends State<AddNotePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isEditing ? 'Edit Note' : 'Add New Note'),
+        title: const Text('Add New Note'),
         centerTitle: true,
         backgroundColor: kBrandGreen,
         foregroundColor: Colors.white,
@@ -157,6 +144,13 @@ class _AddNotePageState extends State<AddNotePage> {
   Widget buildSchoolDropdown(MaterialsProvider materialsProvider) {
     final schools = materialsProvider.schools;
 
+    // Reset selection if it's no longer in the current list
+    if (selectedSchool != null && !schools.contains(selectedSchool)) {
+      selectedSchool = null;
+      selectedLevel = null;
+      selectedModule = null;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -205,6 +199,12 @@ class _AddNotePageState extends State<AddNotePage> {
   Widget buildLevelDropdown(MaterialsProvider materialsProvider) {
     final levels = materialsProvider.levels;
 
+    // Reset selection if it's no longer in the current list
+    if (selectedLevel != null && !levels.contains(selectedLevel)) {
+      selectedLevel = null;
+      selectedModule = null;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -216,6 +216,7 @@ class _AddNotePageState extends State<AddNotePage> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<Level>(
+          key: ValueKey('level_${selectedSchool?.id}'),
           value: selectedLevel,
           decoration: InputDecoration(
             hintText: selectedSchool == null
@@ -256,6 +257,11 @@ class _AddNotePageState extends State<AddNotePage> {
   Widget buildModuleDropdown(MaterialsProvider materialsProvider) {
     final modules = materialsProvider.modules;
 
+    // Reset selection if it's no longer in the current list
+    if (selectedModule != null && !modules.contains(selectedModule)) {
+      selectedModule = null;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -267,6 +273,7 @@ class _AddNotePageState extends State<AddNotePage> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<Module>(
+          key: ValueKey('module_${selectedLevel?.id}'),
           value: selectedModule,
           decoration: InputDecoration(
             hintText:
@@ -344,12 +351,17 @@ class _AddNotePageState extends State<AddNotePage> {
 
   Future<void> _pickNoteFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
+      const typeGroup = XTypeGroup(
+        label: 'Documents',
+        extensions: ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
       );
-      if (result != null && result.files.isNotEmpty) {
-        setState(() => _noteFile = result.files.first);
+      final file = await openFile(acceptedTypeGroups: [typeGroup]);
+      if (file != null && mounted) {
+        final size = await file.length();
+        setState(() {
+          _noteFile = file;
+          _noteFileSize = size;
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -361,6 +373,11 @@ class _AddNotePageState extends State<AddNotePage> {
         );
       }
     }
+  }
+
+  String? _getFileExtension(String name) {
+    final parts = name.split('.');
+    return parts.length > 1 ? parts.last : null;
   }
 
   IconData _getFileIcon(String? extension) {
@@ -417,7 +434,7 @@ class _AddNotePageState extends State<AddNotePage> {
               children: [
                 Icon(
                   hasFile
-                      ? _getFileIcon(_noteFile!.extension)
+                      ? _getFileIcon(_getFileExtension(_noteFile!.name))
                       : Icons.cloud_upload_outlined,
                   size: 48,
                   color: hasFile ? kBrandGreen : Colors.grey.shade400,
@@ -439,7 +456,7 @@ class _AddNotePageState extends State<AddNotePage> {
                 const SizedBox(height: 4),
                 Text(
                   hasFile
-                      ? '${_noteFile!.extension?.toUpperCase()} - ${_formatFileSize(_noteFile!.size)} - Tap to change'
+                      ? '${_getFileExtension(_noteFile!.name)?.toUpperCase() ?? ''} - ${_formatFileSize(_noteFileSize)} - Tap to change'
                       : 'PDF, DOC, DOCX, PPT, PPTX',
                   style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
                 ),
@@ -661,8 +678,8 @@ class _AddNotePageState extends State<AddNotePage> {
                           strokeWidth: 2,
                         ),
                       )
-                    : Icon(widget.isEditing ? Icons.update : Icons.save),
-                label: Text(widget.isEditing ? 'Update Note' : 'Save Note'),
+                    : const Icon(Icons.save),
+                label: const Text('Save Note'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kBrandGreen,
                   foregroundColor: Colors.white,
@@ -691,40 +708,39 @@ class _AddNotePageState extends State<AddNotePage> {
     final description = descriptionController.text.trim();
     final moduleId = selectedModule?.id ?? 0;
 
-    // Get file paths
-    final filePath = _noteFile?.path;
-    final previewImagePath = _previewImages[0]?.path;
-
-    bool success;
-    if (widget.isEditing && widget.existingNote != null) {
-      success = await notesProvider.updateNote(
-        id: widget.existingNote!.id,
-        title: title,
-        description: description,
-        price: price,
-        moduleId: moduleId,
-      );
-    } else {
-      success = await notesProvider.createNote(
-        title: title,
-        description: description,
-        price: price,
-        moduleId: moduleId,
-        filePath: filePath,
-        previewImagePath: previewImagePath,
-      );
+    // Read file bytes from XFile (works on both web and native)
+    Uint8List? fileBytes;
+    String? fileName;
+    if (_noteFile != null) {
+      fileBytes = await _noteFile!.readAsBytes();
+      fileName = _noteFile!.name;
     }
+
+    Uint8List? previewImageBytes;
+    String? previewImageName;
+    if (_previewImages[0] != null) {
+      previewImageBytes = await _previewImages[0]!.readAsBytes();
+      previewImageName = _previewImages[0]!.name;
+    }
+
+    final success = await notesProvider.createNote(
+      title: title,
+      description: description,
+      price: price,
+      moduleId: moduleId,
+      fileBytes: fileBytes,
+      fileName: fileName,
+      previewImageBytes: previewImageBytes,
+      previewImageName: previewImageName,
+    );
 
     if (!mounted) return;
 
     if (success) {
-      String message = widget.isEditing
-          ? 'Note updated successfully!'
-          : 'Note saved successfully!';
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message, style: const TextStyle(color: Colors.white)),
+        const SnackBar(
+          content: Text('Note saved successfully!',
+              style: TextStyle(color: Colors.white)),
           backgroundColor: kBrandGreen,
         ),
       );

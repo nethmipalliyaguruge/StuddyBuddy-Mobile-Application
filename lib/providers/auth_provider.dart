@@ -32,11 +32,13 @@ class AuthProvider with ChangeNotifier {
       final hasToken = await _storageService.hasToken();
       if (hasToken) {
         _token = await _storageService.getToken();
+        _apiService.setAuthToken(_token);
         await _fetchUser();
       }
     } catch (e) {
       _token = null;
       _user = null;
+      _apiService.setAuthToken(null);
       await _storageService.deleteToken();
     } finally {
       _isLoading = false;
@@ -57,6 +59,7 @@ class AuthProvider with ChangeNotifier {
       if (data['token'] != null) {
         _token = data['token'] as String;
         await _storageService.saveToken(_token!);
+        _apiService.setAuthToken(_token);
 
         if (data['user'] != null) {
           _user = User.fromJson(data['user'] as Map<String, dynamic>);
@@ -107,6 +110,7 @@ class AuthProvider with ChangeNotifier {
       if (data['token'] != null) {
         _token = data['token'] as String;
         await _storageService.saveToken(_token!);
+        _apiService.setAuthToken(_token);
 
         if (data['user'] != null) {
           _user = User.fromJson(data['user'] as Map<String, dynamic>);
@@ -143,6 +147,7 @@ class AuthProvider with ChangeNotifier {
     } finally {
       _token = null;
       _user = null;
+      _apiService.setAuthToken(null);
       await _storageService.deleteToken();
       await _storageService.clearUserData();
       _isLoading = false;
@@ -161,6 +166,7 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       _token = null;
       _user = null;
+      _apiService.setAuthToken(null);
       await _storageService.deleteToken();
       rethrow;
     }
