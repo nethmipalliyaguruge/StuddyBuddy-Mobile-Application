@@ -78,7 +78,7 @@ class _CartPageState extends State<CartPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey[400]),
+          Icon(Icons.shopping_cart_outlined, size: 80, color: Theme.of(context).colorScheme.onSurfaceVariant),
           const SizedBox(height: 16),
           Text(
             'Your cart is empty',
@@ -207,14 +207,14 @@ class _CartPageState extends State<CartPage> {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
+                          color: Theme.of(context).colorScheme.secondaryContainer,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           moduleName,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
-                                color: Colors.blue.shade700,
+                                color: Theme.of(context).colorScheme.onSecondaryContainer,
                                 fontWeight: FontWeight.w500,
                               ),
                         ),
@@ -226,14 +226,14 @@ class _CartPageState extends State<CartPage> {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.orange.shade50,
+                          color: Theme.of(context).colorScheme.tertiaryContainer,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           category,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
-                                color: Colors.orange.shade700,
+                                color: Theme.of(context).colorScheme.onTertiaryContainer,
                                 fontWeight: FontWeight.w500,
                               ),
                         ),

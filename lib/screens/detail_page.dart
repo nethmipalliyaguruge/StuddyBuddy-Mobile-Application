@@ -173,11 +173,11 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
+              Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(height: 16),
               Text(
                 _error!,
-                style: TextStyle(color: Colors.grey[600]),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -254,6 +254,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   Widget buildTitleAndPrice() {
+    final id = _material?.id ?? widget.product?['id'] ?? 0;
+
     return Card(
       color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -263,25 +265,58 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Hero(
+              tag: 'material-icon-$id',
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      kBrandGreen.withValues(alpha: 0.8),
+                      kBrandGreen,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.book, color: Colors.white, size: 24),
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                _title,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+              child: Hero(
+                tag: 'material-title-$id',
+                child: Material(
+                  color: Colors.transparent,
+                  child: Text(
+                    _title,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.green[50],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'LKR ${_price.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  color: kBrandGreen,
-                  fontWeight: FontWeight.bold,
+            Hero(
+              tag: 'material-price-$id',
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'LKR ${_price.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.headlineSmall?.color,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -316,7 +351,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                   Text(
                     '${_currentPreviewPage + 1} / ${imageUrls.length}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                 ],
@@ -355,7 +390,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                       shape: BoxShape.circle,
                       color: index == _currentPreviewPage
                           ? kBrandGreen
-                          : Colors.grey[300],
+                          : Theme.of(context).colorScheme.outlineVariant,
                     ),
                   );
                 }),
@@ -572,9 +607,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   Widget buildBottomBar(double total) {
-    final cartProvider = context.watch<CartProvider>();
     final materialId = _material?.id ?? widget.product?['id'] ?? 0;
-    final isInCart = materialId > 0 && cartProvider.isInCart(materialId);
 
     return SafeArea(
       child: Container(
@@ -614,14 +647,20 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
               child: const Text('Purchase Now'),
             ),
             const SizedBox(width: 8),
-            OutlinedButton.icon(
-              onPressed: isInCart ? null : _addToCart,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: isInCart ? Colors.grey : kBrandGreen,
-                side: BorderSide(color: isInCart ? Colors.grey : kBrandGreen),
-              ),
-              icon: Icon(isInCart ? Icons.check : Icons.add_shopping_cart),
-              label: Text(isInCart ? 'In Cart' : 'Cart'),
+            // Selector rebuilds only when isInCart changes, not on every cart update
+            Selector<CartProvider, bool>(
+              selector: (_, cart) => materialId > 0 && cart.isInCart(materialId),
+              builder: (context, isInCart, child) {
+                return OutlinedButton.icon(
+                  onPressed: isInCart ? null : _addToCart,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: isInCart ? Colors.grey : kBrandGreen,
+                    side: BorderSide(color: isInCart ? Colors.grey : kBrandGreen),
+                  ),
+                  icon: Icon(isInCart ? Icons.check : Icons.add_shopping_cart),
+                  label: Text(isInCart ? 'In Cart' : 'Cart'),
+                );
+              },
             ),
           ],
         ),

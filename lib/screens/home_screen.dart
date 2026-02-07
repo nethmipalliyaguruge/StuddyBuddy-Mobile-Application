@@ -215,22 +215,25 @@ class _HomePageState extends State<HomePage> {
               builder: (context, cartProvider, child) {
                 return Stack(
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CartPage(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: kBrandGreen,
-                        minimumSize: const Size(60, 40),
-                        padding: const EdgeInsets.all(8),
+                    Tooltip(
+                      message: 'Shopping cart',
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CartPage(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: kBrandGreen,
+                          minimumSize: const Size(60, 40),
+                          padding: const EdgeInsets.all(8),
+                        ),
+                        child: const Icon(Icons.shopping_cart),
                       ),
-                      child: const Icon(Icons.shopping_cart),
                     ),
                     if (cartProvider.itemCount > 0)
                       Positioned(

@@ -78,6 +78,15 @@ class PurchasesProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Build a download URI for a purchased material, with the auth token
+  /// appended as a query parameter (needed for browser-based downloads).
+  Future<Uri?> getDownloadUrl(int materialId) async {
+    final token = await _storageService.getToken();
+    if (token == null) return null;
+    final downloadUrl = _apiService.getDownloadUrl(materialId);
+    return Uri.parse('$downloadUrl?token=$token');
+  }
+
   void clearError() {
     _error = null;
     notifyListeners();

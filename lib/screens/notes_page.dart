@@ -57,11 +57,11 @@ class _NotesPageState extends State<NotesPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
+                  Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(height: 16),
                   Text(
                     notesProvider.error!,
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -79,18 +79,18 @@ class _NotesPageState extends State<NotesPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.note_outlined, size: 64, color: Colors.grey[400]),
+                  Icon(Icons.note_outlined, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(height: 16),
                   Text(
                     'No notes yet',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.grey[600],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Tap the + button to add your first note',
-                    style: TextStyle(color: Colors.grey[500]),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -119,6 +119,7 @@ class _NotesPageState extends State<NotesPage> {
             ),
           );
         },
+        tooltip: 'Add new note',
         backgroundColor: kBrandGreen,
         foregroundColor: Colors.white,
         child: const Icon(Icons.add),
@@ -182,7 +183,7 @@ class _NotesPageState extends State<NotesPage> {
                         note.module!.name,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -191,14 +192,16 @@ class _NotesPageState extends State<NotesPage> {
               ),
               IconButton(
                 icon: const Icon(Icons.edit),
+                tooltip: 'Edit note',
                 onPressed: () {
                   _navigateToEditNote(context, note);
                 },
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 iconSize: 20,
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline),
+                tooltip: 'Delete note',
                 onPressed: () => _confirmDeleteNote(context, note),
                 color: Colors.red[400],
                 iconSize: 20,
@@ -273,7 +276,7 @@ class _NotesPageState extends State<NotesPage> {
             child: FadeTransition(opacity: animation, child: child),
           );
         },
-        transitionDuration: const Duration(milliseconds: 250),
+        transitionDuration: const Duration(milliseconds: 50),
       ),
     );
   }

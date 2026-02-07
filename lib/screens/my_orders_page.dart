@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:studybuddy/providers/purchases_provider.dart';
 import 'package:studybuddy/models/purchase.dart';
-import 'package:studybuddy/services/api_service.dart';
-import 'package:studybuddy/services/storage_service.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class MyOrdersPage extends StatefulWidget {
@@ -25,12 +23,9 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
   }
 
   Future<void> _downloadMaterial(Purchase purchase) async {
-    final storageService = StorageService();
-    final apiService = ApiService(storageService);
+    final uri = await context.read<PurchasesProvider>().getDownloadUrl(purchase.materialId);
 
-    // Restore auth token
-    final token = await storageService.getToken();
-    if (token == null) {
+    if (uri == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -40,11 +35,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
       );
       return;
     }
-
-    apiService.setAuthToken(token);
-    final downloadUrl = apiService.getDownloadUrl(purchase.materialId);
-    // Append token as query param for browser-based download
-    final uri = Uri.parse('$downloadUrl?token=$token');
 
     try {
       final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -85,11 +75,11 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
+                  Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(height: 16),
                   Text(
                     purchasesProvider.error!,
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -110,19 +100,19 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                   Icon(
                     Icons.shopping_bag_outlined,
                     size: 64,
-                    color: Colors.grey[400],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'No orders yet',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.grey[600],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Your purchased materials will appear here',
-                    style: TextStyle(color: Colors.grey[500]),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -203,7 +193,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
               const SizedBox(height: 4),
               Text(
                 material!.description!,
-                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -222,7 +212,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                 ),
                 Text(
                   'Ordered: $orderDate',
-                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ],
             ),

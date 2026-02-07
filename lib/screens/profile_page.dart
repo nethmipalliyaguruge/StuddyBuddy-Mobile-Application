@@ -151,20 +151,23 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(width: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CartPage()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: kBrandGreen,
-                minimumSize: const Size(60, 40),
-                padding: const EdgeInsets.all(8),
+            Tooltip(
+              message: 'Shopping cart',
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CartPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: kBrandGreen,
+                  minimumSize: const Size(60, 40),
+                  padding: const EdgeInsets.all(8),
+                ),
+                child: const Icon(Icons.shopping_cart),
               ),
-              child: const Icon(Icons.shopping_cart),
             ),
           ],
         ),
@@ -253,7 +256,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       user?.email ?? "guest@studybuddy.com",
                       style: Theme.of(
                         context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                      ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 16),
 
@@ -300,7 +303,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   'Account',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey[600],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -341,7 +344,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   'Preferences',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey[600],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -395,7 +398,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           themeProvider.isDarkMode ? 'Enabled' : 'Disabled',
                           style: Theme.of(
                             context,
-                          ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                          ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                         trailing: Switch.adaptive(
                           value: themeProvider.isDarkMode,
@@ -455,7 +458,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   'Support',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey[600],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -495,7 +498,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     icon: const Icon(Icons.logout),
                     label: const Text('Logout'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.shade50,
+                      backgroundColor: Theme.of(context).colorScheme.errorContainer,
                       foregroundColor: Colors.red,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -602,7 +605,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 user?.email ?? "guest@studybuddy.com",
                 style: Theme.of(
                   context,
-                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
+                ).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 24),
 
@@ -682,7 +685,7 @@ class _ProfilePageState extends State<ProfilePage> {
             'Account',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 16),
@@ -723,7 +726,7 @@ class _ProfilePageState extends State<ProfilePage> {
             'Preferences',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 16),
@@ -777,7 +780,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     themeProvider.isDarkMode ? 'Enabled' : 'Disabled',
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                    ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   trailing: Switch.adaptive(
                     value: themeProvider.isDarkMode,
@@ -834,7 +837,7 @@ class _ProfilePageState extends State<ProfilePage> {
             'Support',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 16),
@@ -874,7 +877,7 @@ class _ProfilePageState extends State<ProfilePage> {
               icon: const Icon(Icons.logout),
               label: const Text('Logout'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade50,
+                backgroundColor: Theme.of(context).colorScheme.errorContainer,
                 foregroundColor: Colors.red,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -946,7 +949,7 @@ class _ProfilePageState extends State<ProfilePage> {
         subtitle: Text(
           '${_batteryInfo!.stateString}${isLow ? ' - Low battery!' : ''}',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: isLow ? Colors.red : Colors.grey[600],
+            color: isLow ? Colors.red : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         trailing: Text(
@@ -1003,7 +1006,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ? _locationInfo!.city
               : (_locationLoading ? 'Detecting location...' : 'Tap to detect location'),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.grey[600],
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         trailing: _locationInfo != null
@@ -1015,7 +1018,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   color: Colors.blue,
                 ),
               )
-            : Icon(Icons.my_location, size: 20, color: Colors.grey[400]),
+            : Icon(Icons.my_location, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
         onTap: _loadLocation,
       ),
     );
@@ -1036,7 +1039,7 @@ class _ProfilePageState extends State<ProfilePage> {
           label,
           style: Theme.of(
             context,
-          ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+          ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       ],
     );
@@ -1149,12 +1152,12 @@ class ProfileOption extends StatelessWidget {
                 subtitle!,
                 style: Theme.of(
                   context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               )
             : null,
         trailing:
             trailing ??
-            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+            Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
         onTap: onTap,
       ),
     );

@@ -14,8 +14,11 @@ class ExplorePage extends StatefulWidget {
   State<ExplorePage> createState() => _ExplorePageState();
 }
 
-class _ExplorePageState extends State<ExplorePage> {
+class _ExplorePageState extends State<ExplorePage>
+    with SingleTickerProviderStateMixin {
   String selectedCategory = 'Computing';
+
+  late AnimationController _shimmerController;
 
   // Map category names to school IDs from Laravel backend
   final Map<String, int> categoryToSchoolId = {
@@ -24,103 +27,23 @@ class _ExplorePageState extends State<ExplorePage> {
     'Law': 3,
   };
 
-  // Fallback data when API is not available (matches DB records)
-  final Map<String, List<Map<String, dynamic>>> categoryProducts = {
-    'Computing': [
-      {
-        'id': 1,
-        'title': 'Digital Technologies Guide',
-        'description': 'Notes on modern digital systems, hardware, and software.',
-        'price': 3000.00,
-        'rating': 4.8,
-        'level': 'Level 4',
-      },
-      {
-        'id': 2,
-        'title': 'Networking Security Notes',
-        'description': 'Covers firewalls, VPNs, IDS/IPS, secure protocols, and cybersecurity best practices.',
-        'price': 2800.00,
-        'rating': 4.9,
-        'level': 'Level 4',
-      },
-      {
-        'id': 5,
-        'title': 'Networking Cheatsheet (Layer Models)',
-        'description': 'OSI vs TCP/IP, common ports, and subnetting tricks.',
-        'price': 4200.00,
-        'rating': 4.7,
-        'level': 'Level 4',
-      },
-      {
-        'id': 9,
-        'title': 'Server-side Programming',
-        'description': 'PHP, Node.js basics, and server concepts with examples.',
-        'price': 4200.00,
-        'rating': 4.6,
-        'level': 'Level 5',
-      },
-      {
-        'id': 13,
-        'title': 'Mobile App UI Patterns (Slides)',
-        'description': 'Android UI patterns with screenshots and code snippets.',
-        'price': 5600.00,
-        'rating': 4.8,
-        'level': 'Level 5',
-      },
-      {
-        'id': 16,
-        'title': 'Data Structures Q&A Pack',
-        'description': 'Q&A on arrays, stacks, queues, trees, and graphs.',
-        'price': 390.00,
-        'rating': 4.5,
-        'level': 'Level 5',
-      },
-    ],
-    'Business': [
-      {
-        'id': 21,
-        'title': 'Foundations of Management Summary',
-        'description': 'Leadership styles, motivation theories, and organizational structures.',
-        'price': 440.00,
-        'rating': 4.6,
-        'level': 'Level 4',
-      },
-      {
-        'id': 22,
-        'title': 'Marketing Principles – Key Models',
-        'description': 'STP, 4Ps/7Ps, BCG, Ansoff with examples.',
-        'price': 500.00,
-        'rating': 4.7,
-        'level': 'Level 4',
-      },
-    ],
-    'Law': [
-      {
-        'id': 26,
-        'title': 'Contract Law Case Studies',
-        'description': 'Sri Lankan and UK case law precedents.',
-        'price': 600.00,
-        'rating': 4.8,
-        'level': 'Level 4',
-      },
-      {
-        'id': 30,
-        'title': 'Criminal Law Elements (DOCX)',
-        'description': 'Actus reus, mens rea, offences, and defenses with examples.',
-        'price': 500.00,
-        'rating': 4.7,
-        'level': 'Level 5',
-      },
-    ],
-  };
-
   @override
   void initState() {
     super.initState();
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat();
     // Fetch materials filtered by default category (Computing = school_id 1)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchMaterialsByCategory();
     });
+  }
+
+  @override
+  void dispose() {
+    _shimmerController.dispose();
+    super.dispose();
   }
 
   void _fetchMaterialsByCategory() {
@@ -150,22 +73,25 @@ class _ExplorePageState extends State<ExplorePage> {
               builder: (context, cartProvider, child) {
                 return Stack(
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CartPage(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: kBrandGreen,
-                        minimumSize: const Size(60, 40),
-                        padding: const EdgeInsets.all(8),
+                    Tooltip(
+                      message: 'Shopping cart',
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CartPage(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: kBrandGreen,
+                          minimumSize: const Size(60, 40),
+                          padding: const EdgeInsets.all(8),
+                        ),
+                        child: const Icon(Icons.shopping_cart),
                       ),
-                      child: const Icon(Icons.shopping_cart),
                     ),
                     if (cartProvider.itemCount > 0)
                       Positioned(
@@ -276,14 +202,12 @@ class _ExplorePageState extends State<ExplorePage> {
   Widget buildProductList() {
     return Consumer<MaterialsProvider>(
       builder: (context, materialsProvider, child) {
-        // Show loading indicator while fetching
+        // Show shimmer skeleton while fetching
         if (materialsProvider.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(color: kBrandGreen),
-          );
+          return _buildShimmerList();
         }
 
-        // Use API data if available (already filtered by school_id on server)
+        // Use API data or provider's offline/cache fallback
         List<StudyMaterial> materials = materialsProvider.materials;
 
         if (materials.isNotEmpty) {
@@ -296,25 +220,36 @@ class _ExplorePageState extends State<ExplorePage> {
           );
         }
 
-        // Check if offline or error occurred
-        if (materialsProvider.isOffline || materialsProvider.error != null) {
-          return _buildFallbackList();
-        }
-
-        // Empty result from API
+        // Empty result — offline with no cached data, or truly empty
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.folder_open, size: 64, color: Colors.grey.shade400),
+              Icon(
+                materialsProvider.isOffline
+                    ? Icons.cloud_off
+                    : Icons.folder_open,
+                size: 64,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               const SizedBox(height: 16),
               Text(
-                'No materials found for $selectedCategory',
+                materialsProvider.isOffline
+                    ? 'You\'re offline with no cached data'
+                    : 'No materials found for $selectedCategory',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey.shade600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
+                textAlign: TextAlign.center,
               ),
+              if (materialsProvider.isOffline) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Connect to the internet to browse materials',
+                  style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              ],
             ],
           ),
         );
@@ -322,23 +257,107 @@ class _ExplorePageState extends State<ExplorePage> {
     );
   }
 
-  Widget _buildFallbackList() {
-    List<Map<String, dynamic>> products =
-        categoryProducts[selectedCategory] ?? [];
+  Widget _buildShimmerList() {
+    return AnimatedBuilder(
+      animation: _shimmerController,
+      builder: (context, child) {
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 5,
+          itemBuilder: (context, index) {
+            return _buildShimmerCard();
+          },
+        );
+      },
+    );
+  }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        return buildProductCard(products[index]);
+  Widget _buildShimmerCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            _shimmerBox(width: 60, height: 60, borderRadius: 10),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _shimmerBox(width: 160, height: 14, borderRadius: 4),
+                  const SizedBox(height: 8),
+                  _shimmerBox(width: double.infinity, height: 12, borderRadius: 4),
+                  const SizedBox(height: 6),
+                  _shimmerBox(width: 120, height: 12, borderRadius: 4),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      _shimmerBox(width: 70, height: 18, borderRadius: 10),
+                      const SizedBox(width: 8),
+                      _shimmerBox(width: 30, height: 14, borderRadius: 4),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _shimmerBox(width: 80, height: 14, borderRadius: 4),
+                const SizedBox(height: 8),
+                _shimmerBox(width: 60, height: 32, borderRadius: 8),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _shimmerBox({
+    required double height,
+    required double borderRadius,
+    double? width,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final highlightColor = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+
+    return AnimatedBuilder(
+      animation: _shimmerController,
+      builder: (context, child) {
+        return Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(borderRadius),
+            gradient: LinearGradient(
+              colors: [baseColor, highlightColor, baseColor],
+              stops: const [0.0, 0.5, 1.0],
+              begin: Alignment(-1.0 + 2.0 * _shimmerController.value, 0),
+              end: Alignment(1.0 + 2.0 * _shimmerController.value, 0),
+            ),
+          ),
+        );
       },
     );
   }
 
   Widget _buildMaterialCard(StudyMaterial material) {
-    final cartProvider = context.watch<CartProvider>();
-    final isInCart = cartProvider.isInCart(material.id);
-
     // Convert StudyMaterial to Map for navigation to detail page
     final productMap = {
       'id': material.id,
@@ -353,12 +372,28 @@ class _ExplorePageState extends State<ExplorePage> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => NoteDetailPage(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                NoteDetailPage(
               materialId: material.id,
               product: productMap,
               category: selectedCategory,
             ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0);
+              const end = Offset.zero;
+              const curve = Curves.easeInOutCubic;
+
+              var tween = Tween(begin: begin, end: end)
+                  .chain(CurveTween(curve: curve));
+
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: FadeTransition(opacity: animation, child: child),
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 100),
           ),
         );
       },
@@ -379,19 +414,26 @@ class _ExplorePageState extends State<ExplorePage> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Icon
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [kBrandGreen.withValues(alpha: 0.8), kBrandGreen],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              // Icon with Hero animation
+              Hero(
+                tag: 'material-icon-${material.id}',
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        kBrandGreen.withValues(alpha: 0.8),
+                        kBrandGreen,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  borderRadius: BorderRadius.circular(10),
+                  child:
+                      const Icon(Icons.book, color: Colors.white, size: 28),
                 ),
-                child: const Icon(Icons.book, color: Colors.white, size: 28),
               ),
               const SizedBox(width: 16),
 
@@ -400,20 +442,29 @@ class _ExplorePageState extends State<ExplorePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      material.title,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
+                    Hero(
+                      tag: 'material-title-${material.id}',
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Text(
+                          material.title,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       material.description ?? 'Study material',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
-                      ),
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.color
+                                ?.withValues(alpha: 0.7),
+                          ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -426,14 +477,16 @@ class _ExplorePageState extends State<ExplorePage> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
+                            color: Theme.of(context).colorScheme.secondaryContainer,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             material.module?.name ?? 'Module',
-                            style: Theme.of(context).textTheme.bodySmall
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
                                 ?.copyWith(
-                                  color: Colors.blue.shade700,
+                                  color: Theme.of(context).colorScheme.onSecondaryContainer,
                                   fontWeight: FontWeight.w500,
                                 ),
                           ),
@@ -455,34 +508,46 @@ class _ExplorePageState extends State<ExplorePage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    'LKR ${material.price.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: kBrandGreen,
+                  Hero(
+                    tag: 'material-price-${material.id}',
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Text(
+                        'LKR ${material.price.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: kBrandGreen,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: isInCart
-                        ? null
-                        : () {
-                            _addMaterialToCart(material);
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isInCart ? Colors.grey : kBrandGreen,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(60, 32),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      isInCart ? 'Added' : 'Add',
-                      style: const TextStyle(fontSize: 12),
-                    ),
+                  // Selector rebuilds only this button when isInCart changes
+                  Selector<CartProvider, bool>(
+                    selector: (_, cart) => cart.isInCart(material.id),
+                    builder: (context, isInCart, child) {
+                      return ElevatedButton(
+                        onPressed: isInCart
+                            ? null
+                            : () {
+                                _addMaterialToCart(material);
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isInCart ? Colors.grey : kBrandGreen,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(60, 32),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          isInCart ? 'Added' : 'Add',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -518,184 +583,4 @@ class _ExplorePageState extends State<ExplorePage> {
     );
   }
 
-  Widget buildProductCard(Map<String, dynamic> product) {
-    final cartProvider = context.watch<CartProvider>();
-    final isInCart = cartProvider.isInCart(product['id'] as int);
-
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                NoteDetailPage(product: product, category: selectedCategory),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Icon
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [kBrandGreen.withValues(alpha: 0.8), kBrandGreen],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.book, color: Colors.white, size: 28),
-              ),
-              const SizedBox(width: 16),
-
-              // Product Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product['title'],
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      product['description'],
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            product['level'],
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Colors.blue.shade700,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.star, color: Colors.amber, size: 16),
-                        const SizedBox(width: 2),
-                        Text(
-                          product['rating'].toString(),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // Price and Add Button
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'LKR ${(product['price'] as double).toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: kBrandGreen,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: isInCart
-                        ? null
-                        : () {
-                            _addToCart(product);
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isInCart ? Colors.grey : kBrandGreen,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(60, 32),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      isInCart ? 'Added' : 'Add',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _addToCart(Map<String, dynamic> product) {
-    // Create a StudyMaterial from the product data
-    final material = StudyMaterial(
-      id: product['id'] as int,
-      userId: 0,
-      moduleId: 0,
-      title: product['title'] as String,
-      description: product['description'] as String?,
-      price: product['price'] as double,
-      isActive: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-
-    context.read<CartProvider>().addItem(material);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${product['title']} added to cart!',
-          style: const TextStyle(color: Colors.white),
-        ),
-        backgroundColor: kBrandGreen,
-        duration: const Duration(seconds: 1),
-        action: SnackBarAction(
-          label: 'View Cart',
-          textColor: Colors.white,
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const CartPage()),
-            );
-          },
-        ),
-      ),
-    );
-  }
 }

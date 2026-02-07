@@ -216,6 +216,8 @@ class StudyBuddyApp extends StatelessWidget {
             theme: buildTheme(Brightness.light),
             darkTheme: buildTheme(Brightness.dark),
             themeMode: themeProvider.themeMode,
+            themeAnimationDuration: const Duration(milliseconds: 400),
+            themeAnimationCurve: Curves.easeInOut,
 
             home: const Loginpage(),
           );
