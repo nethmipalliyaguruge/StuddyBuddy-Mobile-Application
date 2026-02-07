@@ -65,6 +65,13 @@ dependencies:
   # Light Sensor
   light: ^3.0.1
 
+  # Geolocation
+  geolocator: ^13.0.2
+  geocoding: ^3.0.0
+
+  # Accelerometer (Shake detection)
+  sensors_plus: ^6.1.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

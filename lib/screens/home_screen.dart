@@ -13,6 +13,7 @@ import 'package:studybuddy/screens/explore_page.dart';
 import 'package:studybuddy/screens/notes_page.dart';
 import 'package:studybuddy/screens/profile_page.dart';
 import 'package:studybuddy/services/light_sensor_service.dart';
+import 'package:studybuddy/services/shake_service.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class Homescreen extends StatefulWidget {
@@ -149,6 +150,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final ShakeService _shakeService = ShakeService();
+
   @override
   void initState() {
     super.initState();
@@ -157,6 +160,39 @@ class _HomePageState extends State<HomePage> {
       context.read<NotesProvider>().fetchNotes();
       context.read<PurchasesProvider>().fetchPurchases();
     });
+    _initShakeDetector();
+  }
+
+  @override
+  void dispose() {
+    _shakeService.dispose();
+    super.dispose();
+  }
+
+  void _initShakeDetector() {
+    try {
+      _shakeService.startListening(() {
+        if (!mounted) return;
+        // Refresh data on shake
+        context.read<NotesProvider>().fetchNotes();
+        context.read<PurchasesProvider>().fetchPurchases();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.vibration, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Shake detected! Refreshing...', style: TextStyle(color: Colors.white)),
+              ],
+            ),
+            backgroundColor: kBrandGreen,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      });
+    } catch (e) {
+      // Accelerometer not available on this platform
+    }
   }
 
   @override
@@ -509,25 +545,25 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     buildFeaturedNoteCard(
                       context: context,
-                      title: 'Database Systems & Data Structures',
-                      subtitle: 'Complete guide',
-                      price: 'LKR 850',
+                      title: 'Digital Technologies Guide',
+                      subtitle: 'Digital Technologies',
+                      price: 'LKR 3000',
                       rating: 4.8,
                       category: 'Computing',
                     ),
                     buildFeaturedNoteCard(
                       context: context,
-                      title: 'Web Development Fundamentals',
-                      subtitle: 'Frontend & Backend',
-                      price: 'LKR 800',
+                      title: 'Networking Security Notes',
+                      subtitle: 'Networking & Cyber Security',
+                      price: 'LKR 2800',
                       rating: 4.9,
                       category: 'Computing',
                     ),
                     buildFeaturedNoteCard(
                       context: context,
-                      title: 'Mobile App Development',
-                      subtitle: 'Flutter & React Native',
-                      price: 'LKR 350',
+                      title: 'Mobile App UI Patterns (Slides)',
+                      subtitle: 'Mobile App Development',
+                      price: 'LKR 5600',
                       rating: 4.7,
                       category: 'Computing',
                     ),

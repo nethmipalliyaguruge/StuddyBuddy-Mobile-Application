@@ -12,6 +12,7 @@ import 'package:studybuddy/screens/my_orders_page.dart';
 import 'package:studybuddy/screens/personal_details_screen.dart';
 import 'package:studybuddy/screens/cart_page.dart';
 import 'package:studybuddy/services/battery_service.dart';
+import 'package:studybuddy/services/geolocation_service.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -23,8 +24,11 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final BatteryService _batteryService = BatteryService();
+  final GeolocationService _geolocationService = GeolocationService();
   final ImagePicker _imagePicker = ImagePicker();
   BatteryInfo? _batteryInfo;
+  LocationInfo? _locationInfo;
+  bool _locationLoading = false;
   XFile? _profileImage;
 
   @override
@@ -34,6 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
       context.read<NotesProvider>().fetchNotes();
       context.read<PurchasesProvider>().fetchPurchases();
       _loadBatteryInfo();
+      _loadLocation();
     });
   }
 
@@ -45,6 +50,21 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     } catch (e) {
       // Battery info not available on this platform
+    }
+  }
+
+  Future<void> _loadLocation() async {
+    if (mounted) setState(() => _locationLoading = true);
+    try {
+      final info = await _geolocationService.getCurrentLocation();
+      if (mounted) {
+        setState(() {
+          _locationInfo = info;
+          _locationLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _locationLoading = false);
     }
   }
 
@@ -391,6 +411,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 // Battery Status
                 _buildBatteryWidget(),
+
+                // Location
+                _buildLocationWidget(),
 
                 ProfileOption(
                   icon: Icons.notifications_outlined,
@@ -771,6 +794,9 @@ class _ProfilePageState extends State<ProfilePage> {
           // Battery Status
           _buildBatteryWidget(),
 
+          // Location
+          _buildLocationWidget(),
+
           ProfileOption(
             icon: Icons.notifications_outlined,
             label: "Notifications",
@@ -932,6 +958,65 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         onTap: _loadBatteryInfo,
+      ),
+    );
+  }
+
+  Widget _buildLocationWidget() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.blue.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: _locationLoading
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.blue),
+                )
+              : const Icon(Icons.location_on, color: Colors.blue, size: 24),
+        ),
+        title: Text(
+          'Location',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          _locationInfo != null
+              ? _locationInfo!.city
+              : (_locationLoading ? 'Detecting location...' : 'Tap to detect location'),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Colors.grey[600],
+          ),
+        ),
+        trailing: _locationInfo != null
+            ? Text(
+                _locationInfo!.coordinatesString,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.blue,
+                ),
+              )
+            : Icon(Icons.my_location, size: 20, color: Colors.grey[400]),
+        onTap: _loadLocation,
       ),
     );
   }
