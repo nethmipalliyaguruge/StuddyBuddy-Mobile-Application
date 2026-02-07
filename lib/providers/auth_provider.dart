@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
@@ -43,6 +44,7 @@ class AuthProvider with ChangeNotifier {
     } finally {
       _isLoading = false;
       _isInitialized = true;
+      _error = null;
       notifyListeners();
     }
   }
@@ -145,6 +147,7 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       // Ignore logout API errors
     } finally {
+      _error = null;
       _token = null;
       _user = null;
       _apiService.setAuthToken(null);
@@ -162,7 +165,7 @@ class AuthProvider with ChangeNotifier {
       // API returns {user: {...}} so we need to extract the user object
       final userData = data['user'] ?? data;
       _user = User.fromJson(userData as Map<String, dynamic>);
-      await _storageService.saveUserData(userData as Map<String, dynamic>);
+      await _storageService.saveUserData(userData);
     } catch (e) {
       _token = null;
       _user = null;
@@ -204,7 +207,7 @@ class AuthProvider with ChangeNotifier {
       if (data['user'] != null) {
         _user = User.fromJson(data['user'] as Map<String, dynamic>);
         await _storageService.saveUserData(data['user'] as Map<String, dynamic>);
-      } else if (data != null) {
+      } else {
         _user = User.fromJson(data as Map<String, dynamic>);
         await _storageService.saveUserData(data);
       }
@@ -226,18 +229,36 @@ class AuthProvider with ChangeNotifier {
   }
 
   String _parseError(dynamic e) {
-    if (e is Exception) {
-      final message = e.toString();
-      if (message.contains('DioException')) {
-        if (message.contains('401')) {
+    if (e is DioException) {
+      if (e.response != null) {
+        final status = e.response!.statusCode;
+        final data = e.response!.data;
+
+        if (status == 401) {
           return 'Invalid email or password';
-        } else if (message.contains('422')) {
-          return 'Validation error. Please check your input.';
-        } else if (message.contains('connection')) {
-          return 'Connection error. Please check your internet.';
+        } else if (status == 422 && data is Map && data['errors'] != null) {
+          final errors = data['errors'] as Map<String, dynamic>;
+          return errors.values
+              .expand((v) => v is List ? v : [v])
+              .join('\n');
+        } else if (status == 422) {
+          return (data is Map && data['message'] != null)
+              ? data['message'].toString()
+              : 'Validation error. Please check your input.';
+        } else {
+          return (data is Map && data['message'] != null)
+              ? data['message'].toString()
+              : 'Server error ($status)';
         }
       }
-      return message.replaceAll('Exception: ', '');
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.connectionError) {
+        return 'Connection error. Please check your internet.';
+      }
+      return e.message ?? 'Network error occurred';
+    }
+    if (e is Exception) {
+      return e.toString().replaceAll('Exception: ', '');
     }
     return 'An unexpected error occurred';
   }

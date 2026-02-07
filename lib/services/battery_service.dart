@@ -4,30 +4,44 @@ class BatteryService {
   final Battery _battery = Battery();
 
   Future<int> getBatteryLevel() async {
-    return await _battery.batteryLevel;
+    try {
+      return await _battery.batteryLevel;
+    } catch (e) {
+      return -1;
+    }
   }
 
   Future<BatteryState> getBatteryState() async {
-    return await _battery.batteryState;
+    try {
+      return await _battery.batteryState;
+    } catch (e) {
+      return BatteryState.unknown;
+    }
   }
 
   Future<bool> isCharging() async {
-    final state = await getBatteryState();
-    return state == BatteryState.charging || state == BatteryState.full;
+    try {
+      final state = await getBatteryState();
+      return state == BatteryState.charging || state == BatteryState.full;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> canPerformHeavyTask({int minBatteryLevel = 20}) async {
-    final level = await getBatteryLevel();
-    final charging = await isCharging();
-
-    if (charging) return true;
-    return level >= minBatteryLevel;
+    final info = await getBatteryInfo();
+    if (info.isCharging) return true;
+    return info.level >= minBatteryLevel;
   }
 
   Future<BatteryInfo> getBatteryInfo() async {
-    final level = await getBatteryLevel();
-    final state = await getBatteryState();
-    return BatteryInfo(level: level, state: state);
+    try {
+      final level = await getBatteryLevel();
+      final state = await getBatteryState();
+      return BatteryInfo(level: level, state: state);
+    } catch (e) {
+      return BatteryInfo(level: -1, state: BatteryState.unknown);
+    }
   }
 
   Stream<BatteryState> get onBatteryStateChanged {
@@ -55,7 +69,6 @@ class BatteryInfo {
       case BatteryState.connectedNotCharging:
         return 'Connected (not charging)';
       case BatteryState.unknown:
-      default:
         return 'Unknown';
     }
   }

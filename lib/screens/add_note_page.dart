@@ -32,7 +32,7 @@ class _AddNotePageState extends State<AddNotePage> {
 
   XFile? _noteFile;
   int? _noteFileSize;
-  final List<XFile?> _previewImages = [null, null, null];
+  final List<XFile> _previewImages = [];
 
   @override
   void initState() {
@@ -468,7 +468,7 @@ class _AddNotePageState extends State<AddNotePage> {
     );
   }
 
-  Future<void> _pickPreviewImage(int index) async {
+  void _pickPreviewImages() {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -481,28 +481,24 @@ class _AddNotePageState extends State<AddNotePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.camera_alt, color: kBrandGreen),
-                title: const Text('Take Photo'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _getPreviewImage(index, ImageSource.camera);
-                },
-              ),
-              ListTile(
                 leading: const Icon(Icons.photo_library, color: kBrandGreen),
                 title: const Text('Choose from Gallery'),
+                subtitle: Text(
+                  'Select up to ${3 - _previewImages.length} image${3 - _previewImages.length == 1 ? '' : 's'}',
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                ),
                 onTap: () {
                   Navigator.pop(context);
-                  _getPreviewImage(index, ImageSource.gallery);
+                  _pickFromGallery();
                 },
               ),
-              if (_previewImages[index] != null)
+              if (_previewImages.length < 3)
                 ListTile(
-                  leading: const Icon(Icons.delete, color: Colors.red),
-                  title: const Text('Remove Image'),
+                  leading: const Icon(Icons.camera_alt, color: kBrandGreen),
+                  title: const Text('Take Photo'),
                   onTap: () {
                     Navigator.pop(context);
-                    setState(() => _previewImages[index] = null);
+                    _pickFromCamera();
                   },
                 ),
             ],
@@ -512,16 +508,50 @@ class _AddNotePageState extends State<AddNotePage> {
     );
   }
 
-  Future<void> _getPreviewImage(int index, ImageSource source) async {
+  Future<void> _pickFromGallery() async {
+    try {
+      final images = await _imagePicker.pickMultiImage(
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (images.isNotEmpty && mounted) {
+        final remaining = 3 - _previewImages.length;
+        final toAdd = images.take(remaining).toList();
+        setState(() => _previewImages.addAll(toAdd));
+        if (images.length > remaining && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Maximum 3 preview images allowed'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not pick images: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickFromCamera() async {
     try {
       final image = await _imagePicker.pickImage(
-        source: source,
+        source: ImageSource.camera,
         maxWidth: 1024,
         maxHeight: 1024,
         imageQuality: 85,
       );
       if (image != null && mounted) {
-        setState(() => _previewImages[index] = image);
+        if (_previewImages.length < 3) {
+          setState(() => _previewImages.add(image));
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -547,93 +577,95 @@ class _AddNotePageState extends State<AddNotePage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Take photos or select images of the first 3 pages to show buyers a preview.',
+          'Select 1-3 preview images to show buyers. (${_previewImages.length}/3 selected)',
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(child: _buildPreviewImageCard(0, 'Page 1')),
-            const SizedBox(width: 12),
-            Expanded(child: _buildPreviewImageCard(1, 'Page 2')),
-            const SizedBox(width: 12),
-            Expanded(child: _buildPreviewImageCard(2, 'Page 3')),
-          ],
+        if (_previewImages.isEmpty)
+          _buildAddImageCard(fullWidth: true)
+        else
+          Row(
+            children: [
+              for (int i = 0; i < _previewImages.length; i++) ...[
+                if (i > 0) const SizedBox(width: 12),
+                Expanded(child: _buildSelectedImageCard(i)),
+              ],
+              if (_previewImages.length < 3) ...[
+                const SizedBox(width: 12),
+                Expanded(child: _buildAddImageCard()),
+              ],
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSelectedImageCard(int index) {
+    final image = _previewImages[index];
+    return Stack(
+      children: [
+        Container(
+          height: 120,
+          decoration: BoxDecoration(
+            border: Border.all(color: kBrandGreen),
+            borderRadius: BorderRadius.circular(10),
+            image: DecorationImage(
+              image: kIsWeb
+                  ? NetworkImage(image.path) as ImageProvider
+                  : FileImage(File(image.path)),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Positioned(
+          top: 4,
+          right: 4,
+          child: GestureDetector(
+            onTap: () => setState(() => _previewImages.removeAt(index)),
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.6),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close, color: Colors.white, size: 16),
+            ),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildPreviewImageCard(int index, String label) {
-    final image = _previewImages[index];
-    final hasImage = image != null;
-
+  Widget _buildAddImageCard({bool fullWidth = false}) {
     return GestureDetector(
-      onTap: () => _pickPreviewImage(index),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
-          const SizedBox(height: 8),
-          Container(
-            height: 120,
-            decoration: BoxDecoration(
-              color: hasImage
-                  ? null
-                  : Theme.of(context).cardColor,
-              border: Border.all(
-                color: hasImage ? kBrandGreen : Colors.grey.shade300,
+      onTap: _pickPreviewImages,
+      child: Container(
+        height: 120,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.add_photo_alternate, size: 32, color: Colors.grey.shade400),
+              const SizedBox(height: 4),
+              Text(
+                fullWidth ? 'Add preview images' : 'Add',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
               ),
-              borderRadius: BorderRadius.circular(10),
-              image: hasImage
-                  ? DecorationImage(
-                      image: kIsWeb
-                          ? NetworkImage(image.path) as ImageProvider
-                          : FileImage(File(image.path)),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-            ),
-            child: hasImage
-                ? Align(
-                    alignment: Alignment.topRight,
-                    child: Container(
-                      margin: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: kBrandGreen,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                  )
-                : Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add_a_photo,
-                          size: 28,
-                          color: Colors.grey.shade400,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Add',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+              if (fullWidth)
+                Text(
+                  'Tap to select 1-3 images',
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -719,10 +751,8 @@ class _AddNotePageState extends State<AddNotePage> {
     final List<Uint8List> previewBytesList = [];
     final List<String> previewNamesList = [];
     for (final img in _previewImages) {
-      if (img != null) {
-        previewBytesList.add(await img.readAsBytes());
-        previewNamesList.add(img.name);
-      }
+      previewBytesList.add(await img.readAsBytes());
+      previewNamesList.add(img.name);
     }
 
     final success = await notesProvider.createNote(
