@@ -197,9 +197,57 @@ class _NotesPageState extends State<NotesPage> {
                 color: Colors.grey[600],
                 iconSize: 20,
               ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () => _confirmDeleteNote(context, note),
+                color: Colors.red[400],
+                iconSize: 20,
+              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _confirmDeleteNote(BuildContext context, Note note) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Note'),
+        content: Text(
+          "Are you sure you want to delete '${note.title}'? This cannot be undone.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final provider = this.context.read<NotesProvider>();
+              final messenger = ScaffoldMessenger.of(this.context);
+              final success = await provider.deleteNote(note.id);
+              if (!mounted) return;
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    success
+                        ? 'Note deleted successfully'
+                        : 'Failed to delete note',
+                  ),
+                  backgroundColor: success ? Colors.green : Colors.red,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }
