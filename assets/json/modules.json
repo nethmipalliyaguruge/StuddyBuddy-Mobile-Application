@@ -2,60 +2,288 @@
   {
     "id": 1,
     "level_id": 1,
-    "name": "Introduction to Programming",
-    "code": "CS101",
-    "description": "Basic programming concepts using Python",
-    "is_active": true,
+    "title": "Digital Technologies",
+    "status": true,
     "created_at": "2024-01-01T00:00:00.000Z",
     "updated_at": "2024-01-01T00:00:00.000Z"
   },
   {
     "id": 2,
     "level_id": 1,
-    "name": "Database Systems",
-    "code": "CS102",
-    "description": "Introduction to relational databases and SQL",
-    "is_active": true,
+    "title": "Networking Concepts and Cyber Security",
+    "status": true,
     "created_at": "2024-01-01T00:00:00.000Z",
     "updated_at": "2024-01-01T00:00:00.000Z"
   },
   {
     "id": 3,
-    "level_id": 2,
-    "name": "Mobile Application Development",
-    "code": "CS201",
-    "description": "Building mobile apps with Flutter",
-    "is_active": true,
+    "level_id": 1,
+    "title": "Software Development and Application Modelling",
+    "status": true,
     "created_at": "2024-01-01T00:00:00.000Z",
     "updated_at": "2024-01-01T00:00:00.000Z"
   },
   {
     "id": 4,
-    "level_id": 2,
-    "name": "Web Development",
-    "code": "CS202",
-    "description": "Full-stack web development",
-    "is_active": true,
+    "level_id": 1,
+    "title": "Web Development and Operating Systems",
+    "status": true,
     "created_at": "2024-01-01T00:00:00.000Z",
     "updated_at": "2024-01-01T00:00:00.000Z"
   },
   {
     "id": 5,
-    "level_id": 4,
-    "name": "Business Management",
-    "code": "BM101",
-    "description": "Introduction to business management principles",
-    "is_active": true,
+    "level_id": 2,
+    "title": "Commercial Computing",
+    "status": true,
     "created_at": "2024-01-01T00:00:00.000Z",
     "updated_at": "2024-01-01T00:00:00.000Z"
   },
   {
     "id": 6,
+    "level_id": 2,
+    "title": "Server-side Programming",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "level_id": 2,
+    "title": "Mobile App Development",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 8,
+    "level_id": 2,
+    "title": "Database and Data Structures",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 9,
+    "level_id": 3,
+    "title": "Final Year Project",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 10,
+    "level_id": 3,
+    "title": "Server-side Programming",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 11,
+    "level_id": 3,
+    "title": "Mobile App Development",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 12,
+    "level_id": 3,
+    "title": "Emerging Technologies",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 13,
+    "level_id": 4,
+    "title": "Foundations of Management",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 14,
+    "level_id": 4,
+    "title": "Introduction to Management Accounting",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 15,
+    "level_id": 4,
+    "title": "Marketing in the Business Environment",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 16,
+    "level_id": 4,
+    "title": "Business Law",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 17,
+    "level_id": 5,
+    "title": "Operations Management",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 18,
+    "level_id": 5,
+    "title": "Sustainable Business Development",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 19,
+    "level_id": 5,
+    "title": "Managing Equality, Diversity, and Inclusion",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 20,
+    "level_id": 5,
+    "title": "Elective Modules",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 21,
     "level_id": 6,
-    "name": "Contract Law",
-    "code": "LAW101",
-    "description": "Introduction to contract law",
-    "is_active": true,
+    "title": "Operations Management",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 22,
+    "level_id": 6,
+    "title": "Sustainable Business Development",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 23,
+    "level_id": 6,
+    "title": "Managing Equality, Diversity, and Inclusion",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 24,
+    "level_id": 6,
+    "title": "Elective Modules",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 25,
+    "level_id": 7,
+    "title": "Legal English",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 26,
+    "level_id": 7,
+    "title": "English Legal System",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 27,
+    "level_id": 7,
+    "title": "Contract Law",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 28,
+    "level_id": 7,
+    "title": "Constitutional Law",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 29,
+    "level_id": 7,
+    "title": "Tort Law",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 30,
+    "level_id": 8,
+    "title": "Criminal Law",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 31,
+    "level_id": 8,
+    "title": "Property Law and Application",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 32,
+    "level_id": 8,
+    "title": "Administrative Law",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 33,
+    "level_id": 8,
+    "title": "European Union Law",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 34,
+    "level_id": 9,
+    "title": "Law of Trusts and Equitable Remedies",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 35,
+    "level_id": 9,
+    "title": "Dissertation",
+    "status": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 36,
+    "level_id": 9,
+    "title": "Optional Modules (e.g., Cyber Law, Company & Commercial Law, Employment Law)",
+    "status": true,
     "created_at": "2024-01-01T00:00:00.000Z",
     "updated_at": "2024-01-01T00:00:00.000Z"
   }
