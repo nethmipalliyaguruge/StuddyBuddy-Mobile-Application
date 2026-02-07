@@ -165,31 +165,35 @@ class ApiService {
     required double price,
     Uint8List? fileBytes,
     String? fileName,
-    Uint8List? previewImageBytes,
-    String? previewImageName,
+    List<Uint8List>? previewImageBytesList,
+    List<String>? previewImageNames,
   }) async {
-    final map = <String, dynamic>{
+    final formData = FormData.fromMap({
       'title': title,
       'description': description,
       'module_id': moduleId,
       'price': price,
-    };
+    });
 
     if (fileBytes != null && fileName != null) {
-      map['note_file'] = MultipartFile.fromBytes(
-        fileBytes,
-        filename: fileName,
-      );
+      formData.files.add(MapEntry(
+        'note_file',
+        MultipartFile.fromBytes(fileBytes, filename: fileName),
+      ));
     }
 
-    if (previewImageBytes != null && previewImageName != null) {
-      map['preview_image'] = MultipartFile.fromBytes(
-        previewImageBytes,
-        filename: previewImageName,
-      );
+    if (previewImageBytesList != null && previewImageNames != null) {
+      for (int i = 0; i < previewImageBytesList.length; i++) {
+        formData.files.add(MapEntry(
+          'previews[]',
+          MultipartFile.fromBytes(
+            previewImageBytesList[i],
+            filename: previewImageNames[i],
+          ),
+        ));
+      }
     }
 
-    final formData = FormData.fromMap(map);
     return await _dio.post('/notes', data: formData);
   }
 
@@ -221,5 +225,30 @@ class ApiService {
 
   Future<Response> checkout(List<int> materialIds) async {
     return await _dio.post('/checkout', data: {'material_ids': materialIds});
+  }
+
+  // ==================== FILE/DOWNLOAD HELPERS ====================
+
+  /// Build download URL for a purchased material.
+  /// Backend endpoint: GET /materials/{id}/download
+  String getDownloadUrl(int materialId) {
+    return '$baseUrl/materials/$materialId/download';
+  }
+
+  /// Build full URL for storage files (preview images, etc.)
+  String getFileUrl(String? filePath) {
+    if (filePath == null || filePath.isEmpty) return '';
+    if (filePath.startsWith('http')) return filePath;
+    final storageBase = baseUrl.replaceAll('/api', '');
+    return '$storageBase${filePath.startsWith('/') ? filePath : '/$filePath'}';
+  }
+
+  /// Get the current auth token for authenticated downloads.
+  String? get authToken {
+    final header = _dio.options.headers['Authorization'] as String?;
+    if (header != null && header.startsWith('Bearer ')) {
+      return header.substring(7);
+    }
+    return null;
   }
 }

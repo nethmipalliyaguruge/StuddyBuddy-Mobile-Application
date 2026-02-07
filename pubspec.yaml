@@ -56,6 +56,9 @@ dependencies:
   # File Picker (for documents: PDF, DOC, PPTX)
   file_selector: ^1.0.1
 
+  # URL Launcher (for downloads)
+  url_launcher: ^6.3.0
+
   # Battery
   battery_plus: ^5.0.2
 

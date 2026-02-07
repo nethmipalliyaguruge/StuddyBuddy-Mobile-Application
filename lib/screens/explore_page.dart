@@ -378,8 +378,11 @@ class _ExplorePageState extends State<ExplorePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                NoteDetailPage(product: productMap, category: selectedCategory),
+            builder: (context) => NoteDetailPage(
+              materialId: material.id,
+              product: productMap,
+              category: selectedCategory,
+            ),
           ),
         );
       },

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:studybuddy/providers/purchases_provider.dart';
 import 'package:studybuddy/models/purchase.dart';
+import 'package:studybuddy/services/api_service.dart';
+import 'package:studybuddy/services/storage_service.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class MyOrdersPage extends StatefulWidget {
@@ -19,6 +22,50 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PurchasesProvider>().fetchPurchases();
     });
+  }
+
+  Future<void> _downloadMaterial(Purchase purchase) async {
+    final storageService = StorageService();
+    final apiService = ApiService(storageService);
+
+    // Restore auth token
+    final token = await storageService.getToken();
+    if (token == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please log in to download files'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    apiService.setAuthToken(token);
+    final downloadUrl = apiService.getDownloadUrl(purchase.materialId);
+    // Append token as query param for browser-based download
+    final uri = Uri.parse('$downloadUrl?token=$token');
+
+    try {
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open download link'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Download failed: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -184,11 +231,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Downloading $noteName...')),
-                    );
-                  },
+                  onPressed: () => _downloadMaterial(purchase),
                   icon: const Icon(Icons.download, size: 18),
                   label: const Text('Download Notes'),
                   style: ElevatedButton.styleFrom(

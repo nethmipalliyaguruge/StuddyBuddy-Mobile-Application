@@ -20,13 +20,15 @@ class StudyMaterial {
   final String title;
   final String? description;
   final String? filePath;
-  final String? previewImage;
+  final List<String> previewImages;
   final double price;
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
   final User? seller;
   final Module? module;
+
+  String? get previewImage => previewImages.isNotEmpty ? previewImages.first : null;
 
   StudyMaterial({
     required this.id,
@@ -35,7 +37,7 @@ class StudyMaterial {
     required this.title,
     this.description,
     this.filePath,
-    this.previewImage,
+    this.previewImages = const [],
     required this.price,
     required this.isActive,
     required this.createdAt,
@@ -56,15 +58,22 @@ class StudyMaterial {
       filePath = json['note_file']['file_name'] as String?;
     }
 
-    // Handle preview image from both API format (previews array) and local JSON (preview_image string)
-    String? previewImage = json['preview_image'] as String?;
-    if (previewImage == null && json['previews'] != null && json['previews'] is List) {
+    // Handle preview images from both API format (previews array) and local JSON (preview_images/preview_image)
+    List<String> previewImages = [];
+    if (json['previews'] != null && json['previews'] is List) {
       final previews = json['previews'] as List;
-      if (previews.isNotEmpty && previews.first is Map) {
-        previewImage = previews.first['url'] as String?;
+      for (final p in previews) {
+        if (p is Map && p['url'] != null) {
+          previewImages.add(p['url'] as String);
+        }
       }
     }
-
+    if (previewImages.isEmpty && json['preview_images'] != null && json['preview_images'] is List) {
+      previewImages = (json['preview_images'] as List).whereType<String>().toList();
+    }
+    if (previewImages.isEmpty && json['preview_image'] != null) {
+      previewImages = [json['preview_image'] as String];
+    }
     return StudyMaterial(
       id: json['id'] as int,
       userId: json['user_id'] as int,
@@ -72,7 +81,7 @@ class StudyMaterial {
       title: json['title'] as String,
       description: json['description'] as String?,
       filePath: filePath,
-      previewImage: previewImage,
+      previewImages: previewImages,
       price: (json['price'] as num).toDouble(),
       isActive: isActive,
       createdAt: _parseDateTime(json['created_at']),
@@ -94,7 +103,7 @@ class StudyMaterial {
       'title': title,
       'description': description,
       'file_path': filePath,
-      'preview_image': previewImage,
+      'preview_images': previewImages,
       'price': price,
       'is_active': isActive,
       'created_at': createdAt.toIso8601String(),

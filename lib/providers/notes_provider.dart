@@ -57,15 +57,15 @@ class NotesProvider with ChangeNotifier {
     required double price,
     Uint8List? fileBytes,
     String? fileName,
-    Uint8List? previewImageBytes,
-    String? previewImageName,
+    List<Uint8List>? previewImageBytesList,
+    List<String>? previewImageNames,
   }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      if (fileBytes != null || previewImageBytes != null) {
+      if (fileBytes != null || (previewImageBytesList != null && previewImageBytesList.isNotEmpty)) {
         await _apiService.createNoteWithFile(
           title: title,
           description: description,
@@ -73,8 +73,8 @@ class NotesProvider with ChangeNotifier {
           price: price,
           fileBytes: fileBytes,
           fileName: fileName,
-          previewImageBytes: previewImageBytes,
-          previewImageName: previewImageName,
+          previewImageBytesList: previewImageBytesList,
+          previewImageNames: previewImageNames,
         );
       } else {
         await _apiService.createNote({

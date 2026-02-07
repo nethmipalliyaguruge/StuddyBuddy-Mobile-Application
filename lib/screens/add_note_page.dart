@@ -716,11 +716,13 @@ class _AddNotePageState extends State<AddNotePage> {
       fileName = _noteFile!.name;
     }
 
-    Uint8List? previewImageBytes;
-    String? previewImageName;
-    if (_previewImages[0] != null) {
-      previewImageBytes = await _previewImages[0]!.readAsBytes();
-      previewImageName = _previewImages[0]!.name;
+    final List<Uint8List> previewBytesList = [];
+    final List<String> previewNamesList = [];
+    for (final img in _previewImages) {
+      if (img != null) {
+        previewBytesList.add(await img.readAsBytes());
+        previewNamesList.add(img.name);
+      }
     }
 
     final success = await notesProvider.createNote(
@@ -730,8 +732,8 @@ class _AddNotePageState extends State<AddNotePage> {
       moduleId: moduleId,
       fileBytes: fileBytes,
       fileName: fileName,
-      previewImageBytes: previewImageBytes,
-      previewImageName: previewImageName,
+      previewImageBytesList: previewBytesList.isNotEmpty ? previewBytesList : null,
+      previewImageNames: previewNamesList.isNotEmpty ? previewNamesList : null,
     );
 
     if (!mounted) return;
