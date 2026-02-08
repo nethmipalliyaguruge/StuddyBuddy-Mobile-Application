@@ -5,6 +5,7 @@ import 'package:studybuddy/providers/materials_provider.dart';
 import 'package:studybuddy/models/material.dart';
 import 'package:studybuddy/screens/cart_page.dart';
 import 'package:studybuddy/services/api_service.dart';
+import 'package:studybuddy/providers/recently_viewed_provider.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 class NoteDetailPage extends StatefulWidget {
@@ -55,6 +56,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
           _material = fetched;
           _isLoading = false;
         });
+        if (mounted) {
+          context.read<RecentlyViewedProvider>().addToRecentlyViewed(fetched, widget.category);
+        }
       } else {
         // Fallback to product map if fetch returned null
         _buildMaterialFromProduct();

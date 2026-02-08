@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:studybuddy/providers/cart_provider.dart';
 import 'package:studybuddy/providers/materials_provider.dart';
+import 'package:studybuddy/providers/search_history_provider.dart';
 import 'package:studybuddy/models/material.dart';
 import 'package:studybuddy/screens/cart_page.dart';
 import 'package:studybuddy/screens/detail_page.dart';
@@ -19,6 +20,9 @@ class _ExplorePageState extends State<ExplorePage>
   String selectedCategory = 'Computing';
 
   late AnimationController _shimmerController;
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  bool _showSearchHistory = false;
 
   // Map category names to school IDs from Laravel backend
   final Map<String, int> categoryToSchoolId = {
@@ -34,6 +38,11 @@ class _ExplorePageState extends State<ExplorePage>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     )..repeat();
+    _searchFocusNode.addListener(() {
+      setState(() {
+        _showSearchHistory = _searchFocusNode.hasFocus && _searchController.text.isEmpty;
+      });
+    });
     // Fetch materials filtered by default category (Computing = school_id 1)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchMaterialsByCategory();
@@ -43,14 +52,34 @@ class _ExplorePageState extends State<ExplorePage>
   @override
   void dispose() {
     _shimmerController.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
   void _fetchMaterialsByCategory() {
     final schoolId = categoryToSchoolId[selectedCategory];
     final provider = context.read<MaterialsProvider>();
+    provider.setFilters(schoolId: schoolId, search: _searchController.text.isEmpty ? null : _searchController.text.trim());
+    provider.fetchMaterials();
+  }
+
+  void _onSearchSubmitted(String query) {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return;
+    context.read<SearchHistoryProvider>().addSearch(trimmed);
+    _searchFocusNode.unfocus();
+    setState(() => _showSearchHistory = false);
+    _fetchMaterialsByCategory();
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    final provider = context.read<MaterialsProvider>();
+    final schoolId = categoryToSchoolId[selectedCategory];
     provider.setFilters(schoolId: schoolId);
     provider.fetchMaterials();
+    setState(() => _showSearchHistory = false);
   }
 
   @override
@@ -125,10 +154,111 @@ class _ExplorePageState extends State<ExplorePage>
       ),
       body: Column(
         children: [
+          buildSearchBar(),
           buildCategoryTabs(),
-          Expanded(child: buildProductList()),
+          Expanded(
+            child: _showSearchHistory
+                ? buildSearchHistoryList()
+                : buildProductList(),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: TextField(
+        controller: _searchController,
+        focusNode: _searchFocusNode,
+        decoration: InputDecoration(
+          hintText: 'Search materials...',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: _clearSearch,
+                )
+              : null,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        textInputAction: TextInputAction.search,
+        onSubmitted: _onSearchSubmitted,
+        onChanged: (value) {
+          setState(() {
+            _showSearchHistory = _searchFocusNode.hasFocus && value.isEmpty;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget buildSearchHistoryList() {
+    return Consumer<SearchHistoryProvider>(
+      builder: (context, historyProvider, child) {
+        final history = historyProvider.history;
+
+        if (history.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.history,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'No recent searches',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Recent Searches',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                TextButton(
+                  onPressed: () => historyProvider.clearHistory(),
+                  child: const Text('Clear All'),
+                ),
+              ],
+            ),
+            ...history.map((query) {
+              return ListTile(
+                leading: const Icon(Icons.history, size: 20),
+                title: Text(query),
+                trailing: IconButton(
+                  icon: const Icon(Icons.close, size: 18),
+                  onPressed: () => historyProvider.removeSearch(query),
+                ),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                onTap: () {
+                  _searchController.text = query;
+                  _onSearchSubmitted(query);
+                },
+              );
+            }),
+          ],
+        );
+      },
     );
   }
 

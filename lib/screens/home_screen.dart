@@ -13,6 +13,8 @@ import 'package:studybuddy/screens/detail_page.dart';
 import 'package:studybuddy/screens/explore_page.dart';
 import 'package:studybuddy/screens/notes_page.dart';
 import 'package:studybuddy/screens/profile_page.dart';
+import 'package:studybuddy/screens/recently_viewed_page.dart';
+import 'package:studybuddy/providers/recently_viewed_provider.dart';
 import 'package:studybuddy/services/light_sensor_service.dart';
 import 'package:studybuddy/services/shake_service.dart';
 import 'package:studybuddy/utils/constants.dart';
@@ -270,6 +272,8 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 24),
             buildMyNotesSection(context),
             const SizedBox(height: 24),
+            buildRecentlyViewedSection(context),
+            const SizedBox(height: 24),
             buildCategoriesPreview(context),
             const SizedBox(height: 24),
             buildStatsSection(context),
@@ -450,6 +454,30 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: buildActionCard(
+                context: context,
+                icon: Icons.history,
+                title: 'Recent',
+                subtitle: 'Recently viewed',
+                color: Colors.teal,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RecentlyViewedPage(),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(child: SizedBox()),
+          ],
+        ),
       ],
     );
   }
@@ -593,6 +621,142 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget buildRecentlyViewedSection(BuildContext context) {
+    return Consumer<RecentlyViewedProvider>(
+      builder: (context, provider, child) {
+        final items = provider.recentlyViewed;
+
+        if (items.isEmpty) return const SizedBox.shrink();
+
+        final displayItems = items.length > 5 ? items.sublist(0, 5) : items;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Recently Viewed',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RecentlyViewedPage(),
+                      ),
+                    );
+                  },
+                  child: const Text('View All'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 160,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: displayItems.length,
+                itemBuilder: (context, index) {
+                  final material = displayItems[index];
+                  final category = provider.categoryFor(material.id);
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NoteDetailPage(
+                            materialId: material.id,
+                            product: {
+                              'id': material.id,
+                              'title': material.title,
+                              'description': material.description ?? 'Study material',
+                              'price': material.price,
+                            },
+                            category: category ?? 'Computing',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 150,
+                      margin: const EdgeInsets.only(right: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 60,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  kBrandGreen.withValues(alpha: 0.8),
+                                  kBrandGreen,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(12),
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.book, color: Colors.white, size: 28),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  material.title,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'LKR ${material.price.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: kBrandGreen,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

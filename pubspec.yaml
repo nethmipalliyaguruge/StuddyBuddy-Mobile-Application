@@ -47,6 +47,10 @@ dependencies:
   # Local Storage (for caching)
   shared_preferences: ^2.2.2
 
+  # SQLite (for local database)
+  sqflite: ^2.3.0
+  path: ^1.8.3
+
   # Connectivity
   connectivity_plus: ^5.0.2
 

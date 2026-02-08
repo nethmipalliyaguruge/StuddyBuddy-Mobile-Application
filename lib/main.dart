@@ -17,6 +17,9 @@ import 'package:studybuddy/providers/notes_provider.dart';
 import 'package:studybuddy/providers/materials_provider.dart';
 import 'package:studybuddy/providers/purchases_provider.dart';
 import 'package:studybuddy/providers/connectivity_provider.dart';
+import 'package:studybuddy/providers/recently_viewed_provider.dart';
+import 'package:studybuddy/providers/search_history_provider.dart';
+import 'package:studybuddy/services/database_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,11 +30,13 @@ void main() async {
 
   final apiService = ApiService(storageService);
   final connectivityService = ConnectivityService();
+  final databaseService = DatabaseService();
 
   runApp(StudyBuddyApp(
     storageService: storageService,
     apiService: apiService,
     connectivityService: connectivityService,
+    databaseService: databaseService,
   ));
 }
 
@@ -160,12 +165,14 @@ class StudyBuddyApp extends StatelessWidget {
   final StorageService storageService;
   final ApiService apiService;
   final ConnectivityService connectivityService;
+  final DatabaseService databaseService;
 
   const StudyBuddyApp({
     super.key,
     required this.storageService,
     required this.apiService,
     required this.connectivityService,
+    required this.databaseService,
   });
 
   @override
@@ -205,6 +212,16 @@ class StudyBuddyApp extends StatelessWidget {
         // Purchases Provider
         ChangeNotifierProvider(
           create: (_) => PurchasesProvider(apiService, storageService),
+        ),
+
+        // Recently Viewed Provider (SQLite-backed)
+        ChangeNotifierProvider(
+          create: (_) => RecentlyViewedProvider(databaseService)..loadRecentlyViewed(),
+        ),
+
+        // Search History Provider (SQLite-backed)
+        ChangeNotifierProvider(
+          create: (_) => SearchHistoryProvider(databaseService)..loadHistory(),
         ),
       ],
       child: Consumer<ThemeProvider>(
