@@ -504,46 +504,38 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     return Card(
       color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          children: [
+            _moduleInfoRow(Icons.menu_book_rounded, 'Module', _moduleName),
+            _moduleInfoRow(Icons.school_rounded, 'Level', _level),
+            _moduleInfoRow(Icons.apartment_rounded, 'School', _school),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _moduleInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
         children: [
-          ListTile(
-            leading: const Icon(Icons.menu_book_rounded, color: kBrandGreen),
-            title: Text(
-              'Module',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            trailing: Text(
-              _moduleName,
+          Icon(icon, color: kBrandGreen, size: 24),
+          const SizedBox(width: 12),
+          Text(label, style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              value,
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
                   ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.school_rounded, color: kBrandGreen),
-            title:
-                Text('Level', style: Theme.of(context).textTheme.bodyMedium),
-            trailing: Text(
-              _level,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.apartment_rounded, color: kBrandGreen),
-            title: Text(
-              'School',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            trailing: Text(
-              _school,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.end,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -608,6 +600,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
   Widget buildBottomBar(double total) {
     final materialId = _material?.id ?? widget.product?['id'] ?? 0;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     return SafeArea(
       child: Container(
@@ -618,49 +612,68 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
             top: BorderSide(color: Theme.of(context).dividerColor),
           ),
         ),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: Text(
-                'LKR ${total.toStringAsFixed(2)}',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+            if (isLandscape)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'LKR ${total.toStringAsFixed(2)}',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            FilledButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Purchase feature coming soon!',
-                      style: TextStyle(color: Colors.white),
+            Row(
+              children: [
+                if (!isLandscape)
+                  Expanded(
+                    child: Text(
+                      'LKR ${total.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    backgroundColor: kBrandGreen,
                   ),
-                );
-              },
-              style: FilledButton.styleFrom(
-                backgroundColor: kBrandGreen,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Purchase Now'),
-            ),
-            const SizedBox(width: 8),
-            // Selector rebuilds only when isInCart changes, not on every cart update
-            Selector<CartProvider, bool>(
-              selector: (_, cart) => materialId > 0 && cart.isInCart(materialId),
-              builder: (context, isInCart, child) {
-                return OutlinedButton.icon(
-                  onPressed: isInCart ? null : _addToCart,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: isInCart ? Colors.grey : kBrandGreen,
-                    side: BorderSide(color: isInCart ? Colors.grey : kBrandGreen),
+                Expanded(
+                  flex: isLandscape ? 1 : 0,
+                  child: FilledButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Purchase feature coming soon!',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: kBrandGreen,
+                        ),
+                      );
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: kBrandGreen,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Purchase Now'),
                   ),
-                  icon: Icon(isInCart ? Icons.check : Icons.add_shopping_cart),
-                  label: Text(isInCart ? 'In Cart' : 'Cart'),
-                );
-              },
+                ),
+                const SizedBox(width: 8),
+                // Selector rebuilds only when isInCart changes, not on every cart update
+                Selector<CartProvider, bool>(
+                  selector: (_, cart) => materialId > 0 && cart.isInCart(materialId),
+                  builder: (context, isInCart, child) {
+                    return OutlinedButton.icon(
+                      onPressed: isInCart ? null : _addToCart,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: isInCart ? Colors.grey : kBrandGreen,
+                        side: BorderSide(color: isInCart ? Colors.grey : kBrandGreen),
+                      ),
+                      icon: Icon(isInCart ? Icons.check : Icons.add_shopping_cart),
+                      label: Text(isInCart ? 'In Cart' : 'Cart'),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

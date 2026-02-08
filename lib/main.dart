@@ -219,6 +219,12 @@ class StudyBuddyApp extends StatelessWidget {
             themeAnimationDuration: const Duration(milliseconds: 400),
             themeAnimationCurve: Curves.easeInOut,
 
+            builder: (context, child) {
+              return SafeArea(
+                top: false, // AppBar handles the top
+                child: child!,
+              );
+            },
             home: const Loginpage(),
           );
         },

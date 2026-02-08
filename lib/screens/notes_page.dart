@@ -276,7 +276,7 @@ class _NotesPageState extends State<NotesPage> {
             child: FadeTransition(opacity: animation, child: child),
           );
         },
-        transitionDuration: const Duration(milliseconds: 50),
+        transitionDuration: const Duration(milliseconds: 400),
       ),
     );
   }

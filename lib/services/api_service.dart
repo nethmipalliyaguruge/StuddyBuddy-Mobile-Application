@@ -6,10 +6,10 @@ class ApiService {
   // For Chrome/Web: use localhost
   // For Android emulator: use 10.0.2.2:8000
   // For physical device: use your PC's IP (e.g., 10.2.4.8)
-  static const String baseUrl = 'http://localhost:8000/api';
+  // static const String baseUrl = 'http://localhost:8000/api';
 
-  // // Hosted Laravel backend
-  // static const String baseUrl = 'http://52.221.236.102/api';
+  // Hosted Laravel backend
+  static const String baseUrl = 'http://52.221.236.102/api';
 
   late final Dio _dio;
   final StorageService _storageService;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:studybuddy/providers/auth_provider.dart';
 import 'package:studybuddy/providers/cart_provider.dart';
+import 'package:studybuddy/providers/materials_provider.dart';
 import 'package:studybuddy/providers/connectivity_provider.dart';
 import 'package:studybuddy/providers/theme_provider.dart';
 import 'package:studybuddy/providers/notes_provider.dart';
@@ -26,6 +27,7 @@ class Homescreen extends StatefulWidget {
 class _HomescreenState extends State<Homescreen> {
   int _index = 0;
   final LightSensorService _lightSensorService = LightSensorService();
+  final ShakeService _shakeService = ShakeService();
   bool _darkModeSuggested = false;
 
   final _pages = const [HomePage(), ExplorePage(), NotesPage(), ProfilePage()];
@@ -34,12 +36,42 @@ class _HomescreenState extends State<Homescreen> {
   void initState() {
     super.initState();
     _initLightSensor();
+    _initShakeDetector();
   }
 
   @override
   void dispose() {
     _lightSensorService.dispose();
+    _shakeService.dispose();
     super.dispose();
+  }
+
+  void _initShakeDetector() {
+    try {
+      _shakeService.startListening(() {
+        if (!mounted) return;
+        // Refresh all data on shake
+        context.read<NotesProvider>().fetchNotes();
+        context.read<PurchasesProvider>().fetchPurchases();
+        context.read<MaterialsProvider>().fetchMaterials(forceRefresh: true);
+        context.read<AuthProvider>().refreshUser();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.vibration, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Shake detected! Refreshing...', style: TextStyle(color: Colors.white)),
+              ],
+            ),
+            backgroundColor: kBrandGreen,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      });
+    } catch (e) {
+      // Accelerometer not available on this platform
+    }
   }
 
   void _initLightSensor() {
@@ -150,8 +182,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final ShakeService _shakeService = ShakeService();
-
   @override
   void initState() {
     super.initState();
@@ -160,39 +190,6 @@ class _HomePageState extends State<HomePage> {
       context.read<NotesProvider>().fetchNotes();
       context.read<PurchasesProvider>().fetchPurchases();
     });
-    _initShakeDetector();
-  }
-
-  @override
-  void dispose() {
-    _shakeService.dispose();
-    super.dispose();
-  }
-
-  void _initShakeDetector() {
-    try {
-      _shakeService.startListening(() {
-        if (!mounted) return;
-        // Refresh data on shake
-        context.read<NotesProvider>().fetchNotes();
-        context.read<PurchasesProvider>().fetchPurchases();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.vibration, color: Colors.white),
-                SizedBox(width: 8),
-                Text('Shake detected! Refreshing...', style: TextStyle(color: Colors.white)),
-              ],
-            ),
-            backgroundColor: kBrandGreen,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      });
-    } catch (e) {
-      // Accelerometer not available on this platform
-    }
   }
 
   @override
