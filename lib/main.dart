@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:studybuddy/screens/login_page.dart';
+import 'package:studybuddy/screens/home_screen.dart';
 import 'package:studybuddy/utils/constants.dart';
 
 // Services
@@ -225,7 +226,19 @@ class StudyBuddyApp extends StatelessWidget {
                 child: child!,
               );
             },
-            home: const Loginpage(),
+            home: Consumer<AuthProvider>(
+              builder: (context, auth, _) {
+                if (!auth.isInitialized) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                if (auth.isAuthenticated) {
+                  return const Homescreen();
+                }
+                return const Loginpage();
+              },
+            ),
           );
         },
       ),
