@@ -614,6 +614,7 @@ class _HomePageState extends State<HomePage> {
                     price: 'LKR ${note.price.toStringAsFixed(0)}',
                     rating: 4.5 + (index * 0.1),
                     category: 'Computing',
+                    materialId: note.id,
                   );
                 },
               );
@@ -767,6 +768,7 @@ class _HomePageState extends State<HomePage> {
     required String price,
     required double rating,
     String? category,
+    int? materialId,
   }) {
     return GestureDetector(
       onTap: () {
@@ -782,6 +784,7 @@ class _HomePageState extends State<HomePage> {
           context,
           MaterialPageRoute(
             builder: (context) => NoteDetailPage(
+              materialId: materialId,
               product: noteData,
               category:
                   category ?? 'Computing', // Use passed category or default

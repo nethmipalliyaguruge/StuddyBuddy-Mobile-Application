@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:studybuddy/providers/auth_provider.dart';
 import 'package:studybuddy/providers/cart_provider.dart';
 import 'package:studybuddy/providers/materials_provider.dart';
 import 'package:studybuddy/models/material.dart';
@@ -602,10 +603,45 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     );
   }
 
+  bool get _isOwnNote {
+    final userId = context.read<AuthProvider>().user?.id;
+    return _material?.userId != null &&
+        _material!.userId != 0 &&
+        _material!.userId == userId;
+  }
+
   Widget buildBottomBar(double total) {
     final materialId = _material?.id ?? widget.product?['id'] ?? 0;
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
+
+    if (_isOwnNote) {
+      return SafeArea(
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            border: Border(
+              top: BorderSide(color: Theme.of(context).dividerColor),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.edit_note, color: kBrandGreen),
+              const SizedBox(width: 8),
+              Text(
+                'Your Note',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: kBrandGreen,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return SafeArea(
       child: Container(
