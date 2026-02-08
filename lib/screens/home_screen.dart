@@ -114,7 +114,7 @@ class _HomescreenState extends State<Homescreen> {
         duration: const Duration(seconds: 5),
         action: SnackBarAction(
           label: 'ENABLE',
-          textColor: kBrandGreen,
+          textColor: Colors.white,
           onPressed: () {
             context.read<ThemeProvider>().setDarkMode();
           },
