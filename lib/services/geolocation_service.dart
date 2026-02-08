@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -35,10 +36,15 @@ class GeolocationService {
       );
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
-        cityName = place.locality ?? place.subAdministrativeArea ?? place.administrativeArea ?? 'Unknown';
+        cityName = place.locality
+            ?? place.subAdministrativeArea
+            ?? place.administrativeArea
+            ?? place.name
+            ?? place.country
+            ?? 'Unknown';
       }
-    } catch (_) {
-      // Geocoding may fail offline
+    } catch (e) {
+      debugPrint('Geocoding failed: $e');
     }
 
     return LocationInfo(

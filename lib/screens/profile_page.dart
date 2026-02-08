@@ -1003,21 +1003,16 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         subtitle: Text(
           _locationInfo != null
-              ? _locationInfo!.city
+              ? _locationInfo!.city != 'Unknown'
+                  ? '${_locationInfo!.city} (${_locationInfo!.coordinatesString})'
+                  : _locationInfo!.coordinatesString
               : (_locationLoading ? 'Detecting location...' : 'Tap to detect location'),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         trailing: _locationInfo != null
-            ? Text(
-                _locationInfo!.coordinatesString,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.blue,
-                ),
-              )
+            ? Icon(Icons.refresh, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant)
             : Icon(Icons.my_location, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
         onTap: _loadLocation,
       ),
