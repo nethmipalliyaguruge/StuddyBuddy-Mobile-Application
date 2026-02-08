@@ -162,6 +162,7 @@ class _AddNotePageState extends State<AddNotePage> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<School>(
+          isExpanded: true,
           value: selectedSchool,
           decoration: InputDecoration(
             hintText: 'Select School',
@@ -179,7 +180,7 @@ class _AddNotePageState extends State<AddNotePage> {
             ),
           ),
           items: schools.map((school) {
-            return DropdownMenuItem(value: school, child: Text(school.name));
+            return DropdownMenuItem(value: school, child: Text(school.name, overflow: TextOverflow.ellipsis));
           }).toList(),
           onChanged: (value) {
             setState(() {
@@ -216,6 +217,7 @@ class _AddNotePageState extends State<AddNotePage> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<Level>(
+          isExpanded: true,
           key: ValueKey('level_${selectedSchool?.id}'),
           value: selectedLevel,
           decoration: InputDecoration(
@@ -236,7 +238,7 @@ class _AddNotePageState extends State<AddNotePage> {
             ),
           ),
           items: levels.map((level) {
-            return DropdownMenuItem(value: level, child: Text(level.name));
+            return DropdownMenuItem(value: level, child: Text(level.name, overflow: TextOverflow.ellipsis));
           }).toList(),
           onChanged: selectedSchool == null
               ? null
@@ -273,6 +275,7 @@ class _AddNotePageState extends State<AddNotePage> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<Module>(
+          isExpanded: true,
           key: ValueKey('module_${selectedLevel?.id}'),
           value: selectedModule,
           decoration: InputDecoration(
@@ -292,7 +295,7 @@ class _AddNotePageState extends State<AddNotePage> {
             ),
           ),
           items: modules.map((module) {
-            return DropdownMenuItem(value: module, child: Text(module.name));
+            return DropdownMenuItem(value: module, child: Text(module.name, overflow: TextOverflow.ellipsis));
           }).toList(),
           onChanged: selectedLevel == null
               ? null
@@ -730,6 +733,16 @@ class _AddNotePageState extends State<AddNotePage> {
 
   Future<void> saveNote() async {
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_previewImages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please add at least one preview image'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 

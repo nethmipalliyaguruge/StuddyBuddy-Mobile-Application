@@ -95,7 +95,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
     _material = StudyMaterial(
       id: p['id'] ?? 0,
-      userId: 0,
+      userId: p['user_id'] ?? 0,
       moduleId: 0,
       title: p['title'] ?? 'Study Material',
       description: p['description'] as String?,

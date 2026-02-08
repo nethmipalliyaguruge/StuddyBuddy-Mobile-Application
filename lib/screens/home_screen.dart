@@ -615,6 +615,13 @@ class _HomePageState extends State<HomePage> {
                     rating: 4.5 + (index * 0.1),
                     category: 'Computing',
                     materialId: note.id,
+                    noteData: {
+                      'id': note.id,
+                      'title': note.title,
+                      'description': note.description,
+                      'price': note.price,
+                      'user_id': note.userId,
+                    },
                   );
                 },
               );
@@ -769,11 +776,12 @@ class _HomePageState extends State<HomePage> {
     required double rating,
     String? category,
     int? materialId,
+    Map<String, dynamic>? noteData,
   }) {
     return GestureDetector(
       onTap: () {
         // Create note data to pass to detail page
-        final noteData = {
+        final product = noteData ?? {
           'title': title,
           'subtitle': subtitle,
           'price': price,
@@ -785,7 +793,7 @@ class _HomePageState extends State<HomePage> {
           MaterialPageRoute(
             builder: (context) => NoteDetailPage(
               materialId: materialId,
-              product: noteData,
+              product: product,
               category:
                   category ?? 'Computing', // Use passed category or default
             ),
